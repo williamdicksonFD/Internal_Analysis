@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Community Follow Holdout Readout</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap">
+<style>
+:root {
+  --bg:#f2f5fb;--surf:#ffffff;--surf2:#f7f9fc;--surf3:#eef2f9;
+  --ink:#0d1d3a;--body:#1e2c47;--muted:#58698a;--faint:#8a9ab8;
+  --line:#e2e8f4;--line2:#cdd6ea;
+  --brand:#1d4ed8;--brand-d:#0b2a6b;--brand-lt:#dbeafe;
+  --c-exp:#1d4ed8;--c-hold:#6b7280;
+  --c-p1:#7c3aed;--c-p1e:#475569;--c-p2:#d97706;--c-p3:#059669;--c-p4:#0891b2;
+  --shade:rgba(100,116,139,.07);
+  --up-fg:#15803d;--up-bg:#f0fdf4;--up-bd:#bbf7d0;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1726;--surf:#19243c;--surf2:#1f2d4a;--surf3:#243356;
+  --ink:#e5ecf8;--body:#b8c8e0;--muted:#7a8eae;--faint:#4f6280;
+  --line:#263048;--line2:#304060;
+  --brand:#60a5fa;--brand-d:#93c5fd;--brand-lt:#1e3060;
+  --c-exp:#60a5fa;--c-hold:#d4d4d4;
+  --c-p1:#a78bfa;--c-p1e:#94a3b8;--c-p2:#fbbf24;--c-p3:#34d399;--c-p4:#22d3ee;
+  --shade:rgba(255,255,255,.04);
+  --up-fg:#4ade80;--up-bg:#052e16;--up-bd:#166534;
+}}
+:root[data-theme="dark"]{
+  --bg:#0e1726;--surf:#19243c;--surf2:#1f2d4a;--surf3:#243356;
+  --ink:#e5ecf8;--body:#b8c8e0;--muted:#7a8eae;--faint:#4f6280;
+  --line:#263048;--line2:#304060;
+  --brand:#60a5fa;--brand-d:#93c5fd;--brand-lt:#1e3060;
+  --c-exp:#60a5fa;--c-hold:#d4d4d4;
+  --c-p1:#a78bfa;--c-p1e:#94a3b8;--c-p2:#fbbf24;--c-p3:#34d399;--c-p4:#22d3ee;
+  --shade:rgba(255,255,255,.04);
+  --up-fg:#4ade80;--up-bg:#052e16;--up-bd:#166534;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--body);
+  font-family:'Plus Jakarta Sans',-apple-system,Segoe UI,Helvetica,Arial,sans-serif;
+  font-size:14.5px;line-height:1.65;-webkit-font-smoothing:antialiased}
+[hidden]{display:none!important}
+a{color:var(--brand)}
+.page{max-width:1100px;margin:0 auto;padding-inline:24px;padding-block:0 80px}
+
+/* cover */
+.cover{background:linear-gradient(140deg,#071744 0%,#0b2a6b 45%,#1d4ed8 100%);padding-block:52px 44px}
+.cover-inner{max-width:1100px;margin:0 auto;padding-inline:24px}
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#93c5fd;margin-bottom:14px}
+.cover h1{font-size:clamp(22px,3.8vw,38px);font-weight:800;line-height:1.12;color:#fff;margin:0 0 16px;max-width:760px;text-wrap:balance}
+.cover .sub{font-size:14px;color:#bfdbfe;max-width:680px;margin:0 0 20px;line-height:1.6}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12px;font-weight:500;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:4px 11px;color:#dbeafe}
+.chip b{color:#fff}
+
+/* timeline */
+.tl-wrap{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:20px 24px 14px;margin-top:24px}
+.tl-label{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.tl-band{position:relative;height:88px}
+.tl-track{position:absolute;left:0;right:0;top:50%;height:7px;transform:translateY(-50%);background:var(--surf3);border-radius:999px;overflow:hidden}
+.tl-fill{height:100%;width:100%;background:linear-gradient(90deg,#7c3aed 0%,#1d4ed8 32%,#d97706 58%,#059669 78%,#0891b2 100%);border-radius:999px}
+.tl-m{position:absolute;display:flex;align-items:center;transform:translateX(-50%)}
+.tl-m.below{flex-direction:column;top:calc(50% + 3px)}
+.tl-m.above{flex-direction:column-reverse;bottom:calc(50% + 3px)}
+.tl-m .dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--surf);flex:none}
+.tl-m.below .dot{margin-bottom:5px}
+.tl-m.above .dot{margin-top:5px}
+.tl-m .lbl{font-size:10px;font-weight:600;white-space:nowrap;text-align:center;line-height:1.3}
+.tl-m .dt{font-size:9.5px;color:var(--muted);white-space:nowrap;text-align:center}
+.tl-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.tl-leg-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--body)}
+.tl-swatch{width:9px;height:9px;border-radius:2px;flex:none}
+
+/* sections */
+section{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:24px 26px;margin-top:18px;box-shadow:0 1px 2px rgba(13,29,58,.04),0 5px 16px rgba(13,29,58,.05)}
+h2{font-size:17px;font-weight:750;color:var(--ink);margin:0 0 4px;text-wrap:balance;display:flex;align-items:center;gap:10px}
+.sn{flex:none;width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--brand),var(--brand-d));color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.deck{color:var(--muted);font-size:13px;margin:2px 0 18px}
+h3{font-size:12px;font-weight:700;color:var(--ink);margin:20px 0 6px;text-transform:uppercase;letter-spacing:.06em}
+p.body{font-size:13.5px;line-height:1.7;color:var(--body);margin:0 0 14px}
+p.body:last-child{margin-bottom:0}
+
+/* tldr list */
+.tldr-list{list-style:none;margin:0 0 20px;padding:0;display:flex;flex-direction:column;gap:8px}
+.tldr-list li{display:flex;align-items:baseline;gap:10px;font-size:13.5px;color:var(--body)}
+.tldr-list li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--brand);flex:none;margin-top:5px}
+
+/* story callout */
+.story{background:linear-gradient(135deg,var(--brand-lt),var(--surf));border:1px solid var(--line2);border-radius:12px;padding:20px 22px;margin-bottom:4px}
+.story p{font-size:14px;line-height:1.72;color:var(--body);margin:0 0 12px}
+.story p:last-child{margin:0}
+
+/* chart grid */
+.chart-grid{display:grid;gap:14px;margin-top:16px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.chart-card{background:var(--surf2);border:1px solid var(--line);border-radius:11px;padding:15px 16px}
+.cc-title{font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.cc-sub{font-size:11.5px;color:var(--muted);margin-bottom:10px}
+.chart-wrap{position:relative}
+.h180{height:180px}.h200{height:200px}.h220{height:220px}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:6px}
+.lg-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--body)}
+.lg-solid{width:20px;height:2.5px;border-radius:2px;background:var(--c-exp)}
+.lg-hold{width:20px;height:2.5px;border-radius:2px;background:var(--c-hold)}
+
+/* ann legend */
+.ann-row{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:12px}
+.an-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}
+.an-line{width:14px;height:2px}
+
+/* note */
+.note{background:var(--surf3);border-left:3px solid var(--brand);border-radius:0 8px 8px 0;padding:10px 14px;font-size:12.5px;color:var(--muted);margin-bottom:14px}
+.note strong{color:var(--body)}
+
+/* validate badge */
+.validate{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:600;background:#fef9c3;border:1px solid #fde047;color:#713f12;border-radius:999px;padding:1px 7px;vertical-align:middle;cursor:default}
+
+/* placeholder */
+.placeholder{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:11px 15px;font-size:12.5px;color:#92400e;margin:20px 0}
+
+/* theme toggle */
+.theme-btn{position:fixed;top:max(env(safe-area-inset-top,0px),12px);right:16px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px)}
+
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}.page,.cover-inner{padding-inline:16px}}
+code{background:var(--surf2);border:1px solid var(--line);padding:1px 5px;border-radius:4px;font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+</style>
+</head>
+<body>
+
+<button class="theme-btn" id="themeBtn" aria-label="Toggle theme">🌗</button>
+
+<div class="cover">
+<div class="cover-inner">
+  <div class="eyebrow">Emerging Experiences · Social · Long-term Holdout</div>
+  <h1>Community Following Feed &amp; User Profiles Growth Arc</h1>
+  <p class="sub">Three phases. One holdout. Aug 17 – Sep 14, 2026.</p>
+  <div class="chips">
+    <div class="chip"><b>Holdout window</b> Aug 24 – Sep 14</div>
+    <div class="chip"><b>Holdout size</b> 5% of Community Feed users</div>
+    <div class="chip"><b>Treatment</b> 95%, all 3 phases</div>
+    <div class="chip"><b>Analyst</b> William Dickson</div>
+    <div class="chip"><b>Jira</b> INITSB-3637</div>
+  </div>
+</div>
+</div>
+
+<div class="page">
+
+
+<!-- TIMELINE -->
+<div class="tl-wrap">
+  <div class="tl-label">Rollout timeline</div>
+  <div class="tl-band">
+    <div class="tl-track"><div class="tl-fill"></div></div>
+    <div id="tl-markers"></div>
+  </div>
+  <div class="tl-legend">
+    <div class="tl-leg-item"><div class="tl-swatch" style="background:var(--c-p1)"></div>Phase 1 A/B - profiles &amp; follow</div>
+    <div class="tl-leg-item"><div class="tl-swatch" style="background:var(--c-p2)"></div>Phase 2 A/B - profile sharing</div>
+    <div class="tl-leg-item"><div class="tl-swatch" style="background:var(--c-p3)"></div>Phase 3 A/B - suggested carousel</div>
+    <div class="tl-leg-item"><div class="tl-swatch" style="background:var(--c-p4)"></div>P2 &amp; P3 rollout + holdout analysis</div>
+  </div>
+</div>
+
+<!-- 1. TLDR + STORY -->
+<section>
+  <h2><span class="sn">1</span>TLDR &amp; the story</h2>
+  <p class="deck">What this analysis shows and why it matters</p>
+
+  <ul class="tldr-list">
+    <li>Follow depth is the strongest predictor of Community Feed engagement. Users who followed 21 or more people during the holdout window opened the feed 45x more than users who followed nobody.</li>
+    <li>Among users who follow at least one person, the Following feed's share of tails grew from 0.3% in Phase 1 to 7.3% by the end of the holdout window. The community stream still dominates, but the Following feed is taking a larger share week over week as follow graphs deepen.</li>
+    <li>Bets placed, sessions, and handle tracked near identically for both groups throughout. The follow graph adds engagement on top of core betting behavior, not instead of it.</li>
+    <li>Commercial guardrails held across all three phases and through the holdout window. The follow graph adds engagement without displacing core betting behavior.</li>
+  </ul>
+
+  <div class="story">
+    <p>The Community Feed has always been a shared stream of bets from people you don't know. It's useful but passive. This MTP tested what happens when users can build a curated feed around the bettors they actually care about.</p>
+    <p>Phase 1 gave users the mechanics: profiles, a follow button, a Following tab. Growth was slow because discovery was manual. Phase 2 added a sharing path so users could send their profile directly to friends. Phase 3 introduced the Suggested Follow Carousel, which helped surface the right accounts to users who had never followed anyone. Still, only a small share of users built meaningful follow graphs by the end of the window. But among those who did, the results are striking.</p>
+    <p>The follow depth charts are the most important output of this analysis. Users who followed 21 or more people opened the feed 45x more than users who followed nobody, and posted to it 200x more often. Feed-to-tail conversion is not flat: it jumps from 44% for non-followers to around 50% the moment a user follows even one person, then holds roughly steady. Most of the lift is in visit frequency, but that first follow also makes you a meaningfully better converter.</p>
+    <p>The cold start problem is still largely unsolved. The carousel was a meaningful step but most users still never follow anyone. The path forward is getting more users past their first follow, and then helping them build a graph deep enough to create a Following feed worth opening every day. Better suggestion signals, interest-based matching, and prompts tied to live games are all levers that compound on what's already been built here.</p>
+</section>
+
+<!-- 2. SOCIAL ENGAGEMENT -->
+<section>
+  <h2><span class="sn">2</span>Social engagement growth</h2>
+  <p class="deck">Community Feed opens and session presence, Aug 17 to Sep 14, daily</p>
+
+  <p class="body">Feed opens per community user and feed open session rate both begin to separate as more users adopt the follow feature. In Phase 1 both groups sit around 2 to 4 opens per active user per day. By the end of the holdout window treatment users average 3 to 5 opens against the holdout's 2 to 3. The Phase 3 inflection is the clearest signal: the carousel accelerated follow graph growth, and opens climbed with it.</p>
+
+  <div class="legend">
+    <div class="lg-item"><div class="lg-solid"></div>Treatment</div>
+    <div class="lg-item"><div class="lg-hold"></div>Holdout</div>
+  </div>
+  <div class="ann-row" id="ann-2"></div>
+
+  <div class="note">
+    <strong>Shaded area = Phase 1 A/B (Aug 17 to 24).</strong> During this period "Treatment" is the variant arm and "Holdout" is the Phase 1 control arm, not yet a true holdout group.
+  </div>
+
+  <div class="chart-grid g2">
+    <div class="chart-card">
+      <div class="cc-title">Community Feed Opens per Community User</div>
+      <div class="cc-sub">Avg Social Feed Page Viewed events per active user, daily</div>
+      <div class="chart-wrap h220"><canvas id="ch-opens"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">Community Feed Open Session Rate</div>
+      <div class="cc-sub">Sessions with at least 1 feed open divided by total qualifying sessions, daily (%)</div>
+      <div class="chart-wrap h220"><canvas id="ch-sess-pct"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. FOLLOW GRAPH -->
+<section>
+  <h2><span class="sn">3</span>The follow graph</h2>
+  <p class="deck">Treatment group only. Holdout users had no access to profiles or follow functionality.</p>
+
+  <p class="body">Follow graph growth was slow through Phases 1 and 2. Organic discovery worked but building a meaningful graph took time. Phase 3 changed the pace: the Suggested Carousel put relevant accounts in front of users who had never followed anyone, and the share of community users with at least one follow roughly tripled. Average follow count among users who accessed the feed kept growing through the holdout window.</p>
+
+  <div class="note">
+    <strong>Treatment group only.</strong> Holdout users had no access to Profile Pages, follow functionality, or the Suggested Carousel.
+  </div>
+
+  <div class="ann-row" id="ann-3"></div>
+
+  <div class="chart-grid g2">
+    <div class="chart-card">
+      <div class="cc-title">% of Community Users Following 1+ Person</div>
+      <div class="cc-sub">Users who followed at least one person divided by community users that day (%)</div>
+      <div class="chart-wrap h220"><canvas id="ch-pct-follow"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">Avg Net Follows per Community User</div>
+      <div class="cc-sub">Net follow actions (followed minus unfollowed) per community user, daily</div>
+      <div class="chart-wrap h220"><canvas id="ch-follows-pu"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. SOCIAL BETTING IMPACT -->
+<section>
+  <h2><span class="sn">4</span>Community betting impact</h2>
+  <p class="deck">Feed-to-tail conversion, tails per community user, and where tails come from</p>
+
+  <p class="body">Feed-to-tail conversion averaged 47 to 48% for both treatment and holdout across the holdout window. Both groups convert at the same rate. What drives tailing volume is how often users open the feed.</p>
+
+  <p class="body">Among users who follow at least one person, the Following feed's share of tails grew from 0.3% in Phase 1 to 7.3% by the end of the holdout window. Community still accounts for the large majority of tails, but the Following feed is taking a larger share as follow graphs deepen.</p>
+
+  <div class="legend">
+    <div class="lg-item"><div class="lg-solid"></div>Treatment</div>
+    <div class="lg-item"><div class="lg-hold"></div>Holdout</div>
+  </div>
+  <div class="ann-row" id="ann-4"></div>
+
+  <div class="chart-grid g2">
+    <div class="chart-card">
+      <div class="cc-title">Feed-to-Tail CVR</div>
+      <div class="cc-sub">Ordered funnel: Community Feed opened then social tail placed, 30-min session window (%)</div>
+      <div class="chart-wrap h200"><canvas id="ch-conv"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">Tails per Community User</div>
+      <div class="cc-sub">Social tails (community + following feed) per community user, daily</div>
+      <div class="chart-wrap h200"><canvas id="ch-tails-pu"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:14px">
+    <div class="chart-card">
+      <div class="cc-title">Tails by Source: Community vs Following Feed</div>
+      <div class="cc-sub">Share of tails from each tab (%), treatment users who follow 1+ person</div>
+      <div class="legend" style="margin-top:6px;margin-bottom:4px">
+        <div class="lg-item"><div style="width:16px;height:2.5px;border-radius:2px;background:var(--c-p2)"></div>Community feed</div>
+        <div class="lg-item"><div style="width:16px;height:2.5px;border-radius:2px;background:var(--c-p3)"></div>Following feed</div>
+      </div>
+      <div class="chart-wrap h200"><canvas id="ch-tail-src"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">Community-Sourced Handle per Community User</div>
+      <div class="cc-sub">Handle from bets placed via community feed tails, daily avg per cohort user</div>
+      <div class="chart-wrap h200"><canvas id="ch-handle"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. FEED ACTIVITY -->
+<section>
+  <h2><span class="sn">5</span>Feed activity: posting and sharing</h2>
+  <p class="deck">Posts to the feed per community user and % of bets shared, both cohorts, daily</p>
+
+  <p class="body">Posting and sharing capture the supply side of the Community Feed. Treatment shows a small upturn in posts per community user as follow counts begin to rise, possibly an early sign of separation between the two groups. Both groups post at similar rates overall, but there seems to be a slight correlation in the treatment group between how many profiles a user follows and how much they contribute to the feed.</p>
+
+  <div class="legend">
+    <div class="lg-item"><div class="lg-solid"></div>Treatment</div>
+    <div class="lg-item"><div class="lg-hold"></div>Holdout</div>
+  </div>
+  <div class="ann-row" id="ann-5"></div>
+
+  <div class="chart-grid g2">
+    <div class="chart-card">
+      <div class="cc-title">Posts to Feed per Community User</div>
+      <div class="cc-sub">Social Post Successful events per community user that day, daily</div>
+      <div class="chart-wrap h200"><canvas id="ch-posts"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">% of Bets Posted to Feed</div>
+      <div class="cc-sub">Social Post Successful divided by Bet Success that day (%)</div>
+      <div class="chart-wrap h200"><canvas id="ch-pct-posted"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. WHAT FOLLOWS UNLOCK -->
+<section style="border:2px solid var(--brand);box-shadow:0 0 0 4px var(--brand-lt),0 1px 2px rgba(13,29,58,.04),0 5px 16px rgba(13,29,58,.05)">
+  <h2><span class="sn">6</span>What following unlocks</h2>
+  <p class="deck">Treatment group only, pooled over Aug 24 to Sep 14</p>
+
+  <p class="body">Treatment users bucketed by how many people they followed during the holdout window. Users who followed nobody opened the Community Feed 9 times across the 22-day window. Users who followed 1 person: 49 times. Users following 21 or more: 416 times, 45x more than non-followers. Feed-to-tail conversion jumps from 44% for non-followers to around 50% at the first follow, then holds roughly steady. Every additional follow drives more visits; the conversion rate barely moves.</p>
+
+  <p class="body">Posting scales similarly. Users following 21 or more posted to the feed 19 times per user over the window vs 0.09 for non-followers. Content supply and follow depth move together.</p>
+
+  <div class="note">
+    <strong>Treatment group only.</strong> Cross-sectional. Users bucketed by total follow actions during the holdout window.
+  </div>
+
+  <div class="chart-grid g3" style="box-sizing:border-box;width:100%;padding-right:2px">
+    <div class="chart-card">
+      <div class="cc-title">Community Feed Opens by Follow Depth</div>
+      <div class="cc-sub">Total feed opens per user over window, by follow count bucket</div>
+      <div class="chart-wrap h220"><canvas id="ch-follow-opens"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">Feed-to-Tail CVR by Follow Depth</div>
+      <div class="cc-sub">Feed opened then social tail placed, 30-min window (%), by follow count bucket</div>
+      <div class="chart-wrap h220"><canvas id="ch-follow-conv"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">Posts to Feed by Follow Depth</div>
+      <div class="cc-sub">Total posts per user over window, by follow count bucket</div>
+      <div class="chart-wrap h220"><canvas id="ch-posts-flwrs"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. GUARDRAILS -->
+<section>
+  <h2><span class="sn">7</span>Commercial guardrails</h2>
+  <p class="deck">Active Session Rate, Sessions per User, Bets per User, Handle per User, treatment vs. holdout, daily</p>
+
+  <p class="body">All four guardrails tracked near identically across both groups for all 29 days. Active Session Rate, Sessions per Social User, Bets per Social User, and Handle per Social User show no meaningful separation. Community Feed engagement is additive.</p>
+
+  <div class="note">No figures in this readout are adjusted for outliers or tested for statistical significance. This is a descriptive analysis.</div>
+
+  <div class="legend">
+    <div class="lg-item"><div class="lg-solid"></div>Treatment</div>
+    <div class="lg-item"><div class="lg-hold"></div>Holdout</div>
+  </div>
+  <div class="ann-row" id="ann-7"></div>
+
+  <div class="chart-grid g2">
+    <div class="chart-card">
+      <div class="cc-title">Active Session Rate</div>
+      <div class="cc-sub">Sessions with at least 1 placed bet divided by total qualifying sessions, daily (%)</div>
+      <div class="chart-wrap h200"><canvas id="ch-asr"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">Sessions per Social User</div>
+      <div class="cc-sub">Avg sessions per social user, daily</div>
+      <div class="chart-wrap h200"><canvas id="ch-sess-pu"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-grid g2" style="margin-top:14px">
+    <div class="chart-card">
+      <div class="cc-title">Bets per Social User</div>
+      <div class="cc-sub">Avg bets placed per social user, daily</div>
+      <div class="chart-wrap h200"><canvas id="ch-bets-pu"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">Handle per Social User</div>
+      <div class="cc-sub">Avg handle per social user, daily</div>
+      <div class="chart-wrap h200"><canvas id="ch-hpu"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. METHODOLOGY -->
+<section>
+  <h2><span class="sn">8</span>Methodology</h2>
+  <p class="deck">Cohort construction, data sources, metric definitions</p>
+
+  <h3>Cohort (stitched)</h3>
+  <p class="body">Aug 17 to 24 (Phase 1 A/B): Treatment = <code>TOAD_SOCIAL_FEED_ENABLE_PROFILE = on</code>; Holdout = <code>control</code>. Aug 24 to Sep 14 (holdout window): Treatment = all three phase flags on; Holdout = holdout/control value on Phase 1 flag (confirmed from Amplitude user_properties). iOS and Android only (<code>amplitude_project = 'amplitude_sbk'</code>).</p>
+
+  <h3>Metric definitions</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;font-size:13px;color:var(--body)">
+    <div><b>Community Feed opens per community user:</b> <code>Social Feed Page Viewed</code> totals divided by <code>_active</code> unique users per day (logged_in, native, sportsbook)</div>
+    <div><b>Community Feed open session rate:</b> sessions with at least 1 <code>Social Feed Page Viewed</code> divided by qualifying active sessions, daily</div>
+    <div><b>Feed-to-tail CVR:</b> ordered funnel within a 30-minute session (Session ID held constant): Social Feed Page Viewed then Selection Success (Selection Page Name Source = social or social-feed). Holdout window avg ~47 to 48% both groups.</div>
+    <div><b>Tails per community user:</b> PROPSUM(Bet Count on social Selection Success) divided by UNIQUES(Social Feed Page Viewed) that day. Both treatment and holdout shown.</div>
+    <div><b>Tails by source:</b> share of all social tails by Tab Source (community / following / profile), scoped to users who followed 1+ person. Phase 1 ~94.5% community / 5.1% following. Holdout end ~86.7% community / 9.0% following.</div>
+    <div><b>Community-sourced handle:</b> Selection Stake PROPSUM on social-sourced Selection Success, per community user</div>
+    <div><b>Follow depth charts:</b> users bucketed by total Social Follow Action Selected (Interaction Type = followed) events during the holdout window. Cross-sectional: each bucket shows the pooled Aug 24 to Sep 14 average.</div>
+    <div><b>% of bets posted to feed:</b> funnel Bet Success to Social Post Successful (Bet ID constant), daily OVER_TIME</div>
+    <div><b>Handle per social user (guardrail):</b> Selection Stake PROPSUM divided by _active uniques, daily average</div>
+    <div><b>Active Session Rate (guardrail):</b> sessions with at least 1 <code>Bet Success</code> divided by qualifying active sessions (logged_in, native, at least 5s), daily (%)</div>
+  </div>
+
+  <h3>Notes</h3>
+  <p style="font-size:13px;color:var(--muted);margin:0">Phase 1 A/B window (Aug 17 to 24) is shaded on all time-series charts. Phase annotation lines are dashed vertical lines recessed behind data series. Treatment-only charts have no holdout line since holdout users cannot follow or view profiles. Sessions per social user y-axis runs 0 to 15. All other y-axes start at 0. Daily grain throughout. Cross-sectional charts pool the full Aug 24 to Sep 14 holdout window. Spikes in the holdout series reflect small sample size variance. None of the figures in this readout are adjusted for outliers or tested for statistical significance. This is a descriptive analysis.</p>
+</section>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════════
+// CONFIRMED DATES
+// ══════════════════════════════════════════════════════════════════
+const META = {
+  arc_start:      '2026-08-17',
+  arc_end:        '2026-09-14',
+  phase1_start:   '2026-08-17',
+  phase1_end:     '2026-08-24',  // P1 A/B ends; P1 rollout + holdout carved out; P2 A/B begins
+  phase2_launch:  '2026-08-24',  // Phase 2 A/B kicks off same day
+  phase3_launch:  '2026-09-01',  // Phase 3 A/B launches
+  p23_rollout:    '2026-09-04',  // Phase 2 & 3 both roll out; holdout analysis continues
+  holdout_end:    '2026-09-14',
+};
+
+// ── Date helpers ──────────────────────────────────────────────────
+function dateRange(a, b) {
+  const out = [], d = new Date(a + 'T12:00:00');
+  const e = new Date(b + 'T12:00:00');
+  while (d <= e) { out.push(d.toISOString().slice(0,10)); d.setDate(d.getDate()+1); }
+  return out;
+}
+const DATES = dateRange(META.arc_start, META.arc_end);
+const N = DATES.length;
+const idx = d => DATES.indexOf(d);
+const iP1e  = idx(META.phase1_end);
+const iP2   = idx(META.phase2_launch);   // = iP1e (same date)
+const iP3   = idx(META.phase3_launch);
+const iRoll = idx(META.p23_rollout);
+
+// ── DATA FROM AMPLITUDE ───────────────────────────────────────────
+// All values from Amplitude tracking dashboard rdrrnwpa. Dates: 2026-08-17 to 2026-09-14 (29 days)
+// Treatment = toad_social_feed_enable_profile 'on' (Phase 1) / holdout-8c0orijd 'on' (holdout window)
+// Holdout = toad_social_feed_enable_profile 'control' (Phase 1) / holdout-8c0orijd 'holdout' (holdout window)
+
+const D = {
+  // opens: Social Feed Page Views / _active unique users (updated denominator)
+  // Phase 1 from b3jsaie2, Holdout from 7p33rdea
+  opens:   { exp:  [1.8776,3.1450,3.0198,3.1192,3.3678,3.9445,3.6486,1.9384,2.5044,2.9708,3.1070,3.3189,3.7869,3.6338,3.0086,2.9513,2.8385,3.2939,3.4536,4.0254,3.7083,3.5921,2.9527,3.4043,3.4777,3.0977,3.6717,5.1828,3.3407],
+             hold: [2.1418,3.5476,3.4193,3.3820,3.5995,4.1921,3.8742,1.8242,2.2762,3.2512,2.9383,3.4038,3.5126,3.2406,2.8104,2.7001,2.2878,3.1383,3.7240,4.1257,3.3545,3.2603,2.8478,3.0638,3.3377,2.8404,3.4257,4.6986,2.9812] },
+  // sessPct: Community Feed open session rate (% of sessions). Phase 1: 815nxkxw, Holdout: qp176z97
+  // Funnel: _active → Social Feed Page Viewed, session-id constant. Values ×100.
+  sessPct: { exp:  [1.187,1.270,1.244,1.310,1.012,0.939,1.020,0.896,1.165,1.579,1.648,1.610,1.591,1.624,1.743,1.627,1.531,2.167,2.047,1.916,2.237,2.465,2.426,2.208,2.296,2.140,1.945,2.256,2.918],
+             hold: [1.260,1.421,1.342,1.353,1.070,0.976,1.064,0.843,1.125,1.630,1.625,1.603,1.475,1.580,1.652,1.552,1.388,2.179,2.076,1.958,2.212,2.362,2.419,2.117,2.246,1.990,1.787,2.117,2.757] },
+  // sessPU: Sessions per logged-in community user. Phase 1: 68vw4153, Holdout: sn48bb4x
+  sessPU:  { exp:  [7.612,9.339,10.515,9.392,10.067,12.221,10.848,7.156,6.876,8.329,9.272,10.083,11.428,11.076,9.031,9.107,9.468,9.718,10.277,12.784,10.863,9.703,9.021,11.298,10.884,9.595,13.293,16.358,9.693],
+             hold: [7.563,9.373,10.583,9.457,10.156,12.309,10.910,7.246,6.898,8.516,9.371,9.958,11.283,11.167,8.917,9.142,9.355,9.421,10.325,12.774,10.826,9.541,8.962,11.296,10.772,9.259,13.136,16.173,9.543] },
+  // conv: Feed-to-Tail CVR. Values ×100 for pct display. Phase 1: 56u8dezd, Holdout: from xlsx
+  conv:    { exp:  [38.82,50.45,50.63,47.66,54.25,54.00,51.77,58.1,53.6,54.8,52.1,53.1,52.7,53.0,51.3,52.2,53.4,43.5,44.7,44.8,43.3,40.3,36.8,37.7,40.2,42.6,43.2,47.4,41.1],
+             hold: [38.31,48.68,51.69,51.08,55.63,54.28,53.09,58.2,52.6,56.4,51.1,51.9,51.5,55.8,50.3,54.5,58.2,45.3,45.8,45.7,41.6,41.2,38.7,37.9,37.6,43.1,45.7,48.5,43.5] },
+  // tailsPU: PROPSUM(Bet Count on social Selection Success) / UNIQUES(SFPV). Phase 1: ehe33goa, Holdout: 09n5q5rb
+  tailsPU: { exp:  [1.5135,3.0233,2.7065,2.4553,3.2686,3.4884,3.0278,2.7607,3.1007,3.3354,3.0568,3.4679,3.3908,3.4483,3.3146,3.3902,3.1842,2.2829,2.5419,2.4643,2.2584,2.2369,1.9037,1.7336,1.8313,2.3712,2.4119,2.5704,1.8026],
+             holdout: [null,null,null,null,null,null,null,2.7609,2.7447,3.1947,2.7087,3.3951,3.3478,3.3725,3.1080,3.1983,3.2938,2.1532,2.7256,2.3751,2.1930,2.1787,1.7810,1.5325,1.6507,2.3322,2.7058,2.7896,1.6368] },
+  // handle: Community-sourced handle. Phase 1: ntsemtan, Holdout: g02kdwdi
+  handle:  { exp:  [3.9580,6.3599,4.8784,5.7547,6.7096,7.2656,6.9267,6.0918,6.0741,6.9345,6.5196,7.4711,7.2097,7.2040,6.0716,6.0170,6.8759,5.4171,5.3107,5.4811,5.1352,4.5972,3.9846,4.3224,5.1398,5.3137,5.6091,7.3660,5.4920],
+             hold: [3.2730,4.4235,5.8105,6.1295,7.3128,7.6816,6.7554,9.7945,6.5464,6.6360,5.6060,6.8399,6.1440,5.7082,5.3048,5.3457,7.0332,5.2193,5.9089,5.3054,4.2695,4.9095,3.6655,3.3020,4.5534,4.8873,6.5031,7.3072,4.0385] },
+  // posts: Posts per community user. Phase 1: 12sj28gp, Holdout: 7a0lmcih
+  posts:   { exp:  [0.1209,0.2045,0.2096,0.1316,0.1494,0.1445,0.1291,0.1052,0.1182,0.0894,0.1076,0.1239,0.1095,0.1125,0.0929,0.1183,0.1138,0.0757,0.0913,0.0810,0.0756,0.0718,0.0801,0.0922,0.0995,0.0959,0.1004,0.1130,0.0902],
+             hold: [0.1980,0.1582,0.1791,0.1056,0.1295,0.1315,0.1090,0.1614,0.1993,0.1528,0.1718,0.2251,0.1692,0.1387,0.1218,0.1656,0.1696,0.1423,0.1283,0.0761,0.0644,0.1223,0.0575,0.0883,0.0889,0.0478,0.0731,0.0737,0.0695] },
+  // pctPost: % Bets Posted. Phase 1: jfgemct3, Holdout: from xlsx
+  pctPost: { exp:  [0.0002686,0.0002935,0.0001601,0.0001876,0.0001292,0.0000835,0.0000909,0.0000563,0.0000797,0.0000510,0.0000594,0.0000745,0.0000743,0.0000835,0.0000633,0.0000771,0.0000806,0.0000883,0.0000951,0.0000659,0.0000833,0.0000983,0.000131,0.0000484,0.0000451,0.0000935,0.0000749,0.0000748,0.0000664],
+             hold: [0.0001888,0.0001321,0.0001727,0.0000783,0.0001133,0.0000652,0.0000505,0.0000340,0.0000252,0.000234,0.000150,0.0000471,0.0000421,0.0000522,0.000115,0.000105,0.0000887,0.000160,0.000131,0.0000495,0.0000447,0.0000733,0.0000793,0.0000215,0.0000631,0.0000502,0.0000654,0.0000433,0.000189] },
+  // asr: Active Session Rate (%). Phase 1: 7bry1gon, Holdout: 2q0xkgb6. Community users only.
+  asr:     { exp:  [27.23,29.46,30.53,29.75,30.15,30.40,29.41,29.87,29.31,29.16,28.31,29.42,29.42,28.85,28.49,28.25,28.74,27.39,28.17,27.99,27.31,27.66,27.87,27.72,27.76,27.99,28.83,27.65,27.93],
+             hold: [25.27,29.88,30.67,29.85,30.42,30.49,29.53,29.60,29.14,28.92,28.28,28.28,28.15,28.68,27.88,26.57,27.31,27.68,28.09,28.57,27.15,27.53,29.60,29.15,28.92,27.88,27.88,27.15,27.53] },
+  // betsPU: Bets per community user. Phase 1: peteykfp, Holdout: ugkcvltu
+  betsPU:  { exp:  [4.422,6.151,6.782,5.383,6.257,7.495,6.374,4.132,4.446,5.046,5.221,6.170,6.469,6.280,5.259,5.405,5.285,5.183,5.853,6.751,5.620,5.155,4.982,5.795,5.537,5.241,7.263,8.942,5.129],
+             hold: [4.268,6.295,6.801,5.411,6.228,7.482,6.331,4.093,4.296,5.006,5.018,6.076,6.286,6.202,5.128,5.242,4.896,4.825,5.860,6.600,5.404,5.059,4.849,5.615,5.444,5.023,6.923,8.683,4.955] },
+  // hpu: Handle per community user. Phase 1: vjh7tsne, Holdout: aecgo1zt
+  hpu:     { exp:  [177.93,205.13,169.54,147.34,189.29,211.38,184.53,108.38,112.92,130.19,133.49,163.90,189.22,184.01,165.16,147.91,154.68,161.25,175.69,203.03,173.35,146.64,122.77,149.08,146.86,140.45,202.96,201.82,117.58],
+             hold: [116.79,139.21,139.30,137.58,161.82,197.60,167.50,86.54,89.75,119.16,120.02,141.79,149.01,157.71,127.34,108.51,121.47,113.26,155.27,150.28,140.47,112.88,97.78,111.70,114.29,114.62,160.81,159.89,94.28] },
+};
+
+// Tails by source (% of total tails, 0-100). Scoped to users who followed 1+ person.
+// Phase 1 from sl2uacpr, Holdout from l1zecsp9. Treatment arm only.
+const tailsCommunity = [100.0,91.83,96.39,94.61,95.77,93.99,93.94,89.16,90.66,89.65,90.13,90.88,92.01,91.58,90.36,89.09,91.07,90.06,85.34,82.35,84.33,84.25,83.51,85.78,85.27,89.16,84.91,83.01,82.17];
+// Following tab share (Treatment arm only)
+const tailsFollowing = [0.00,0.40,0.52,0.00,0.40,0.19,0.39,0.29,1.05,0.38,0.62,1.38,0.99,1.17,0.78,1.69,2.30,2.20,3.59,4.77,4.91,5.44,6.60,6.72,6.00,3.69,5.29,6.71,7.31];
+
+// % of community users following 1+. Treatment only. Phase 1: xnmetymk, Holdout: z048b3gr
+const pctFollow = [5.49,2.56,0.64,0.43,1.06,0.85,0.63, 0.65,0.56,0.54,0.75,0.63,0.53,0.62,0.62,1.14,1.76,1.57,2.14,2.83,2.46,2.20,2.58,3.25,3.28,3.43,3.59,3.77,3.39];
+
+// Avg net follows per community user (followed minus unfollowed). Treatment only. Phase 1: qlllzh3c, Holdout: cgusg2zl
+const followsPU = [0.176,0.045,0.019,0.015,0.027,0.021,0.012, 0.019,0.012,0.013,0.017,0.017,0.013,0.012,0.012,0.032,0.059,0.044,0.065,0.102,0.085,0.061,0.073,0.081,0.089,0.112,0.109,0.094,0.080];
+
+const FB             = ["0", "1", "2-5", "6-10", "11-20", "21+"];
+const FLB            = ["0", "1", "2-5", "6-10", "11-20", "21+"];
+// Feed opens (TOTALS/UNIQUES per active user) by follow depth, Aug 24–Sep 14, from 86rvxyg1
+const FEED_BY_FOLLOW = [9.29, 49.28, 88.87, 118.49, 150.28, 415.65];
+// Feed-to-tail CVR (%) by follow depth, Aug 24–Sep 14, from ceavs1qi
+const CONV_BY_FOLLOW = [44.1, 50.4, 51.9, 48.2, 50.4, 50.0];
+// Posts per social user by follow depth, Aug 24–Sep 14, from z8ewt9s3
+const POSTS_BY_FLWRS = [0.094, 1.23, 2.04, 5.30, 4.98, 19.21];
+
+// CHART INFRASTRUCTURE
+// ══════════════════════════════════════════════════════════════════
+const cv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function tok() {
+  return {
+    exp:cv('--c-exp'), hold:cv('--c-hold'),
+    p1:cv('--c-p1'), p1e:cv('--c-p1e'), p2:cv('--c-p2'), p3:cv('--c-p3'), p4:cv('--c-p4'),
+    grid:cv('--line'), muted:cv('--muted'), shade:cv('--shade'),
+  };
+}
+
+// Solid annotation-line plugin (visually distinct from dashed holdout series)
+const annPlugin = {
+  id:'ann',
+  // Draw dashed lines first so they sit behind the data series
+  beforeDraw(chart,_,opts){
+    const {ctx,chartArea:ca,scales} = chart;
+    if(!scales.x||!opts.lines) return;
+    opts.lines.forEach(({xVal,color})=>{
+      const i = opts.dates.indexOf(xVal);
+      if(i<0) return;
+      const x = scales.x.getPixelForValue(i);
+      if(x<ca.left||x>ca.right) return;
+      ctx.save();
+      ctx.setLineDash([4,4]);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.4;
+      ctx.globalAlpha = 0.38;
+      ctx.beginPath(); ctx.moveTo(x,ca.top); ctx.lineTo(x,ca.bottom); ctx.stroke();
+      ctx.restore();
+    });
+  },
+  // Draw labels on top after data series
+  afterDraw(chart,_,opts){
+    const {ctx,chartArea:ca,scales} = chart;
+    if(!scales.x||!opts.lines) return;
+    opts.lines.forEach(({xVal,color,label})=>{
+      if(!label) return;
+      const i = opts.dates.indexOf(xVal);
+      if(i<0) return;
+      const x = scales.x.getPixelForValue(i);
+      if(x<ca.left||x>ca.right) return;
+      ctx.save();
+      ctx.globalAlpha=0.82;
+      ctx.font='bold 9px Plus Jakarta Sans,sans-serif';
+      ctx.fillStyle=color;
+      ctx.textAlign='left';
+      ctx.fillText(label,x+3,ca.top+11);
+      ctx.restore();
+    });
+  }
+};
+
+// Shaded region plugin (Phase 1 A/B window)
+const shadePlugin = {
+  id:'shade',
+  beforeDraw(chart,_,opts){
+    if(!opts.from||!opts.to) return;
+    const {ctx,chartArea:ca,scales} = chart;
+    const x1=scales.x.getPixelForValue(opts.dates.indexOf(opts.from));
+    const x2=scales.x.getPixelForValue(opts.dates.indexOf(opts.to));
+    if(x1<0||x2<0) return;
+    ctx.save();
+    ctx.fillStyle=opts.color||'rgba(100,116,139,.07)';
+    ctx.fillRect(x1,ca.top,x2-x1,ca.bottom-ca.top);
+    ctx.restore();
+  }
+};
+
+Chart.register(annPlugin, shadePlugin);
+
+// ── Time-series factory ───────────────────────────────────────────
+function makeTS(id, expData, holdData, {pct=false, currency=false, yAuto=false, yMax=null, showHold=true}={}) {
+  const el = document.getElementById(id);
+  if(!el) return null;
+  const t = tok();
+  const tickLbls = DATES.map((d,i) => i%7===0 ? d.slice(5) : '');
+  const datasets = [{
+    label:'Treatment', data:expData,
+    borderColor:t.exp, backgroundColor:t.exp+'14',
+    borderWidth:2, pointRadius:0, pointHoverRadius:5, tension:0.32, fill:false,
+  }];
+  if(showHold&&holdData) datasets.push({
+    label:'Holdout', data:holdData,
+    borderColor:t.hold, backgroundColor:'transparent',
+    borderWidth:2,
+    pointRadius:0, pointHoverRadius:4, tension:0.32, fill:false,
+  });
+  const annLines = [
+    {xVal:META.phase1_end,   color:t.p1e, label:'P1 Launch + P2 A/B', dates:DATES},
+    {xVal:META.phase3_launch,color:t.p3,  label:'P3 A/B',              dates:DATES},
+    {xVal:META.p23_rollout,  color:t.p4,  label:'P2+P3 Rollout',       dates:DATES},
+  ].filter(l=>l.xVal);
+  return new Chart(el,{
+    type:'line',
+    data:{labels:tickLbls, datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{intersect:false,mode:'index'},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#0d1d3a',titleColor:'#e5ecf8',bodyColor:'#b8c8e0',
+          borderColor:'#263048',borderWidth:1,padding:10,
+          callbacks:{
+            title:items=>DATES[items[0].dataIndex],
+            label:ctx=>{
+              const v=ctx.parsed.y;
+              if(currency) return ` ${ctx.dataset.label}: $${v.toFixed(2)}`;
+              if(pct) return ` ${ctx.dataset.label}: ${v.toFixed(2)}%`;
+              return ` ${ctx.dataset.label}: ${v.toFixed(3)}`;
+            },
+          },
+        },
+        ann:{lines:annLines,dates:DATES},
+        shade:{from:META.phase1_start,to:META.phase1_end,dates:DATES,color:cv('--shade')},
+      },
+      scales:{
+        x:{grid:{color:t.grid,lineWidth:0.7},ticks:{color:t.muted,font:{size:10},maxRotation:0}},
+        y:{
+          ...(yAuto?{}:{min:0}),
+          ...(yMax!==null?{max:yMax}:{}),
+          grid:{color:t.grid,lineWidth:0.7},
+          ticks:{color:t.muted,font:{size:10},callback:v=>{
+            if(currency) return '$'+Number(v).toFixed(2);
+            if(pct) return v+'%';
+            // avoid floating-point display artifacts
+            const n = +v;
+            return Number.isFinite(n) ? (n%1===0 ? n : n.toFixed(1)) : v;
+          }},
+        },
+      },
+    },
+  });
+}
+
+// Exposed-only two-line (community vs following)
+function makeTwoLine(id, data1, data2, c1, c2, dates) {
+  const el = document.getElementById(id);
+  if(!el) return null;
+  const t = tok();
+  const D2 = dates || DATES;
+  const tickLbls = D2.map((d,i) => i%7===0 ? d.slice(5) : '');
+  const annLines = [
+    {xVal:META.phase1_end,color:t.p1e,label:'P1 Launch + P2 A/B',dates:D2},
+    {xVal:META.phase3_launch,color:t.p3,label:'P3 A/B',dates:D2},
+    {xVal:META.p23_rollout,color:t.p4,label:'P2+P3 Rollout',dates:D2},
+  ];
+  return new Chart(el,{
+    type:'line',
+    data:{labels:tickLbls, datasets:[
+      {label:'Community',data:data1,borderColor:c1,backgroundColor:c1+'18',borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:0.32,fill:false},
+      {label:'Following', data:data2,borderColor:c2,backgroundColor:c2+'18',borderWidth:2,pointRadius:0,pointHoverRadius:4,tension:0.32,fill:false},
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{intersect:false,mode:'index'},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#0d1d3a',titleColor:'#e5ecf8',bodyColor:'#b8c8e0',
+          borderColor:'#263048',borderWidth:1,padding:10,
+          callbacks:{
+            title:items=>D2[items[0].dataIndex],
+            label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`,
+          },
+        },
+        ann:{lines:annLines,dates:D2},
+        shade:{from:META.phase1_start,to:META.phase1_end,dates:D2,color:cv('--shade')},
+      },
+      scales:{
+        x:{grid:{color:t.grid,lineWidth:0.7},ticks:{color:t.muted,font:{size:10},maxRotation:0}},
+        y:{min:0,max:100,grid:{color:t.grid,lineWidth:0.7},ticks:{color:t.muted,font:{size:10},callback:v=>v+'%'}},
+      },
+    },
+  });
+}
+
+// Bar chart (cross-sectional)
+function makeBar(id, labels, data, {pct=false}={}) {
+  const el = document.getElementById(id);
+  if(!el) return null;
+  const t = tok();
+  return new Chart(el,{
+    type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:t.exp+'cc',borderColor:t.exp,borderWidth:1.5,borderRadius:4,borderSkipped:false}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#0d1d3a',titleColor:'#e5ecf8',bodyColor:'#b8c8e0',
+          borderColor:'#263048',borderWidth:1,padding:10,
+          callbacks:{label:ctx=>` ${pct?ctx.parsed.y.toFixed(3)+'%':ctx.parsed.y.toFixed(3)}`},
+        },
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{color:t.muted,font:{size:10}}},
+        y:{min:0,grid:{color:t.grid,lineWidth:0.7},ticks:{color:t.muted,font:{size:10},callback:v=>pct?v+'%':v}},
+      },
+    },
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// BUILD ALL CHARTS
+// ══════════════════════════════════════════════════════════════════
+const charts = {};
+const t = tok();
+
+charts.opens    = makeTS('ch-opens',   D.opens.exp,   D.opens.hold);
+charts.sessPct  = makeTS('ch-sess-pct',D.sessPct.exp, D.sessPct.hold,  {pct:true});
+charts.pctFollow= makeTS('ch-pct-follow',pctFollow,   null,            {pct:true,showHold:false,yMax:12});
+charts.followsPU= makeTS('ch-follows-pu',followsPU,   null,            {showHold:false});
+charts.conv     = makeTS('ch-conv',    D.conv.exp,    D.conv.hold,     {pct:true,yMax:100});
+charts.tailsPU  = makeTS('ch-tails-pu',D.tailsPU.exp, D.tailsPU.holdout);
+charts.tailSrc  = makeTwoLine('ch-tail-src', tailsCommunity, tailsFollowing, t.p2, t.p3);
+charts.handle   = makeTS('ch-handle',  D.handle.exp,  D.handle.hold,   {currency:true});
+charts.posts    = makeTS('ch-posts',   D.posts.exp,   D.posts.hold);
+charts.pctPost  = makeTS('ch-pct-posted',D.pctPost.exp,D.pctPost.hold,{pct:true});
+charts.asr      = makeTS('ch-asr',    D.asr.exp,     D.asr.hold,      {pct:true});
+charts.sessPU   = makeTS('ch-sess-pu', D.sessPU.exp,  D.sessPU.hold,  {yMax:20});
+charts.betsPU   = makeTS('ch-bets-pu', D.betsPU.exp,  D.betsPU.hold,  {yMax:10});
+charts.hpu      = makeTS('ch-hpu',     D.hpu.exp,     D.hpu.hold,     {currency:true});
+
+charts.followOpens= makeBar('ch-follow-opens',FB,FEED_BY_FOLLOW);
+charts.followConv = makeBar('ch-follow-conv', FB,CONV_BY_FOLLOW,{pct:true});
+charts.postsFwrs  = makeBar('ch-posts-flwrs', FLB,POSTS_BY_FLWRS);
+
+// ══════════════════════════════════════════════════════════════════
+// TIMELINE
+// ══════════════════════════════════════════════════════════════════
+(function(){
+  const cont = document.getElementById('tl-markers');
+  const start = new Date(META.arc_start+'T12:00:00');
+  const end   = new Date(META.arc_end  +'T12:00:00');
+  const total = (end-start)/86400000;
+  const pct = d => (new Date(d+'T12:00:00')-start)/86400000/total*100;
+
+  // Alternating above/below: above=true means labels go above the track
+  const events = [
+    {date:META.phase1_start, label:'Phase 1 A/B',  sub:'profiles + follow', color:'var(--c-p1)',  above:true,  forcePct:0},
+    {date:META.phase1_end,   label:'P1 Rollout',   sub:'P2 A/B + holdout',  color:'var(--c-p1e)', above:false},
+    {date:META.phase3_launch,label:'Phase 3 A/B',  sub:'suggested carousel',color:'var(--c-p3)',  above:true},
+    {date:META.p23_rollout,  label:'P2 & P3 Rollout',sub:'holdout continues',color:'var(--c-p4)', above:false},
+    {date:META.holdout_end,  label:'Analysis ends','sub':'',                 color:'var(--faint)', above:true,  forcePct:100},
+  ];
+
+  events.forEach(ev=>{
+    const p = ev.forcePct !== undefined ? ev.forcePct : pct(ev.date);
+    const el = document.createElement('div');
+    el.className = 'tl-m ' + (ev.above ? 'above' : 'below');
+    el.style.left = p + '%';
+    el.innerHTML = `<div class="dot" style="background:${ev.color}"></div>
+      <div class="lbl" style="color:${ev.color}">${ev.label}</div>
+      ${ev.sub ? `<div class="dt">${ev.sub}</div>` : ''}
+      <div class="dt">${ev.date.slice(5)}</div>`;
+    cont.appendChild(el);
+  });
+})();
+
+// ══════════════════════════════════════════════════════════════════
+// ANNOTATION LEGENDS
+// ══════════════════════════════════════════════════════════════════
+function buildAnn(id) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  const t = tok();
+  const items = [
+    {label:'P1 A/B window (shaded)',color:'var(--c-p1)'},
+    {label:'P1 Rollout + P2 A/B (Aug 24)',color:'var(--c-p1e)'},
+    {label:'Phase 3 A/B (Sep 1)',color:'var(--c-p3)'},
+    {label:'P2 & P3 Rollout (Sep 4)',color:'var(--c-p4)'},
+  ];
+  el.innerHTML = items.map(a=>
+    `<div class="an-item"><div class="an-line" style="background:${a.color}"></div>${a.label}</div>`
+  ).join('');
+}
+['ann-2','ann-3','ann-4','ann-5','ann-7'].forEach(buildAnn);
+
+// ══════════════════════════════════════════════════════════════════
+// THEME TOGGLE
+// ══════════════════════════════════════════════════════════════════
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  const root = document.documentElement;
+  const cur = root.getAttribute('data-theme');
+  const sys = window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const next = !cur ? (sys?'light':'dark') : (cur==='dark'?'light':null);
+  next ? root.setAttribute('data-theme',next) : root.removeAttribute('data-theme');
+
+  requestAnimationFrame(()=>{
+    const t = tok();
+    Object.values(charts).forEach(c=>{
+      if(!c) return;
+      c.data.datasets.forEach((ds,i)=>{
+        if(i===0){ds.borderColor=t.exp; ds.backgroundColor=t.exp+'14';}
+        if(i===1&&c.data.datasets.length>1){
+          // second series: holdout (gray) or following-feed source (green)
+          const isFollowSrc = ds.label==='Following';
+          ds.borderColor = isFollowSrc ? t.p3 : t.hold;
+        }
+      });
+      if(c.options.plugins.ann?.lines){
+        const cm={[META.phase1_end]:t.p1e,[META.phase3_launch]:t.p3,[META.p23_rollout]:t.p4};
+        c.options.plugins.ann.lines.forEach(l=>{if(cm[l.xVal])l.color=cm[l.xVal];});
+      }
+      if(c.options.plugins.shade) c.options.plugins.shade.color=cv('--shade');
+      c.options.scales.x.grid.color=t.grid;
+      c.options.scales.y.grid.color=t.grid;
+      c.options.scales.x.ticks.color=t.muted;
+      c.options.scales.y.ticks.color=t.muted;
+      if(c.config.type==='bar'){
+        c.data.datasets[0].backgroundColor=t.exp+'cc';
+        c.data.datasets[0].borderColor=t.exp;
+      }
+      c.update('none');
+    });
+    // rebuild annotation legends with new colors
+    ['ann-2','ann-3','ann-4','ann-5','ann-7'].forEach(buildAnn);
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════
+// DATA INJECTION - run after holdout_analysis.ipynb
+// ══════════════════════════════════════════════════════════════════
+// function injectChartData(raw) {
+//   Object.assign(META, raw.meta);
+//   const ts = raw.daily_timeseries;
+//   const days = [...new Set(ts.map(r=>r.event_day))].sort();
+//   const get = (m,g) => days.map(d=>{
+//     const row=ts.find(r=>r.event_day===d&&r.cohort_group===g);
+//     return row?+row[m]:null;
+//   });
+//   const tickLbls = days.map((d,i)=>i%7===0?d.slice(5):'');
+//
+//   // Time-series charts
+//   [
+//     ['opens',   'avg_feed_opens_per_user',     true],
+//     ['sessPct', 'pct_sessions_with_feed',       true],
+//     ['conv',    'feed_to_tail_conv_pct',         true],
+//     ['tailsPU', 'avg_social_tails_per_social_user', true],
+//     ['handle',  'avg_social_handle_per_user',   true],
+//     ['posts',   'avg_posts_per_user',            true],
+//     ['pctPost', 'pct_bets_posted',               true],
+//     ['asr',     'active_session_rate_pct',       true],
+//     ['sessPU',  'sessions_per_user',             true],
+//     ['betsPU',  'avg_bets_per_user',             true],
+//     ['hpu',     'avg_handle_per_user',           true],
+//   ].forEach(([key,metric,hasBoth])=>{
+//     const c=charts[key]; if(!c) return;
+//     c.data.labels=tickLbls;
+//     c.data.datasets[0].data=get(metric,'exposed');
+//     if(hasBoth&&c.data.datasets[1]) c.data.datasets[1].data=get(metric,'holdout');
+//     c.update();
+//   });
+//
+//   // Exposed-only
+//   charts.pctFollow.data.labels=tickLbls;
+//   charts.pctFollow.data.datasets[0].data=get('pct_with_1plus_follows','exposed');
+//   charts.pctFollow.update();
+//
+//   charts.followsPU.data.labels=tickLbls;
+//   charts.followsPU.data.datasets[0].data=get('avg_following_per_social_user','exposed');
+//   charts.followsPU.update();
+//
+//   charts.tailSrc.data.labels=tickLbls;
+//   charts.tailSrc.data.datasets[0].data=get('avg_community_tails_per_user','exposed');
+//   charts.tailSrc.data.datasets[1].data=get('avg_following_tails_per_user','exposed');
+//   charts.tailSrc.update();
+//
+//   // Cross-sectional
+//   const fb=raw.feed_by_follow, cb=raw.conv_by_follow, pb=raw.posts_by_followers;
+//   charts.followOpens.data.labels=fb.map(r=>r.follow_bucket);
+//   charts.followOpens.data.datasets[0].data=fb.map(r=>+r.avg_daily_opens);
+//   charts.followOpens.update();
+//   charts.followConv.data.labels=cb.map(r=>r.follow_bucket);
+//   charts.followConv.data.datasets[0].data=cb.map(r=>+r.conv_pct);
+//   charts.followConv.update();
+//   charts.postsFwrs.data.labels=pb.map(r=>r.follower_bucket);
+//   charts.postsFwrs.data.datasets[0].data=pb.map(r=>+r.avg_posts_per_user);
+//   charts.postsFwrs.update();
+//
+//   document.getElementById('placeholder-notice').hidden=true;
+// }
+</script>
+</body>
+</html>
