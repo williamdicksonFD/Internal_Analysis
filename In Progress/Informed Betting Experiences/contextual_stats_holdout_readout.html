@@ -1,0 +1,1320 @@
+<title>Contextual Stats Holdout</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..800;1,14..32,300..800&family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&display=swap">
+<style>
+/* layout: full-width cover, constrained content column, card sections */
+:root {
+  --bg: #f6f7f9; --surf: #ffffff; --surf-2: #f0f2f5; --surf-3: #e6e9ef;
+  --ink: #111827; --body: #1f2937; --secondary: #4b5563; --muted: #6b7280; --faint: #9ca3af;
+  --line: #e5e7eb; --line-2: #d1d5db;
+  --accent: #1d4ed8; --accent-light: #dbeafe; --accent-dark: #1e3a8a;
+  --series-1: #2a78d6; --series-2: #6b7280;
+  --up: #15803d; --up-bg: #f0fdf4; --dn: #b91c1c; --dn-bg: #fef2f2;
+  --flat: #6b7280; --flat-bg: #f9fafb;
+  --feature-1: #7c3aed; --feature-2: #d97706; --feature-3: #0891b2;
+  --feature-4: #059669; --feature-5: #e11d48; --feature-6: #6366f1;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1117; --surf: #1a1d27; --surf-2: #22262f; --surf-3: #2a2f3a;
+  --ink: #f0f1f3; --body: #c9cdd4; --secondary: #9ca3af; --muted: #6b7280; --faint: #4b5563;
+  --line: #2a2f3a; --line-2: #374151;
+  --accent: #60a5fa; --accent-light: #1e3a5f; --accent-dark: #93c5fd;
+  --series-1: #60a5fa; --series-2: #d4d4d4;
+  --up: #4ade80; --up-bg: #052e16; --dn: #f87171; --dn-bg: #450a0a;
+  --flat: #d4d4d4; --flat-bg: #22262f;
+  --feature-1: #a78bfa; --feature-2: #fbbf24; --feature-3: #22d3ee;
+  --feature-4: #34d399; --feature-5: #fb7185; --feature-6: #818cf8;
+  color-scheme: dark;
+}}
+:root[data-theme="dark"] {
+  --bg: #0f1117; --surf: #1a1d27; --surf-2: #22262f; --surf-3: #2a2f3a;
+  --ink: #f0f1f3; --body: #c9cdd4; --secondary: #9ca3af; --muted: #6b7280; --faint: #4b5563;
+  --line: #2a2f3a; --line-2: #374151;
+  --accent: #60a5fa; --accent-light: #1e3a5f; --accent-dark: #93c5fd;
+  --series-1: #60a5fa; --series-2: #d4d4d4;
+  --up: #4ade80; --up-bg: #052e16; --dn: #f87171; --dn-bg: #450a0a;
+  --flat: #d4d4d4; --flat-bg: #22262f;
+  --feature-1: #a78bfa; --feature-2: #fbbf24; --feature-3: #22d3ee;
+  --feature-4: #34d399; --feature-5: #fb7185; --feature-6: #818cf8;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box }
+body {
+  margin: 0; background: var(--bg); color: var(--body);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14.5px; line-height: 1.65; -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 80px;
+}
+[hidden] { display: none !important }
+a { color: var(--accent) }
+
+/* type scale */
+.display { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-optical-sizing: auto }
+h1 { font-size: clamp(24px, 4vw, 40px); font-weight: 800; line-height: 1.1; color: var(--ink); margin: 0; text-wrap: balance }
+h2 { font-size: 18px; font-weight: 700; color: var(--ink); margin: 0 0 4px; display: flex; align-items: center; gap: 10px }
+h3 { font-size: 11px; font-weight: 700; color: var(--muted); margin: 18px 0 8px; text-transform: uppercase; letter-spacing: 0.08em }
+p { margin: 0 0 12px; font-size: 14px; line-height: 1.7; color: var(--body) }
+p:last-child { margin-bottom: 0 }
+
+/* layout */
+.page { max-width: 920px; margin: 0 auto }
+
+/* cover */
+.cover {
+  background: linear-gradient(145deg, #071744 0%, #0b2a6b 50%, #1d4ed8 100%);
+  padding: 48px 0 40px;
+  margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 0 calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+}
+.cover-inner {
+  max-width: 920px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #93c5fd; margin-bottom: 12px }
+.cover h1 { color: #fff; max-width: 700px; margin-bottom: 14px }
+.cover .sub { font-size: 14px; color: #bfdbfe; max-width: 640px; line-height: 1.65; margin-bottom: 20px }
+.chips { display: flex; flex-wrap: wrap; gap: 6px }
+.chip { font-size: 11.5px; font-weight: 500; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); border-radius: 999px; padding: 4px 12px; color: #dbeafe }
+.chip b { color: #fff }
+
+/* jump-to nav */
+.jump { display: flex; flex-wrap: wrap; gap: 6px; padding: 16px 0; border-bottom: 1px solid var(--line); margin-bottom: 20px }
+.jump a { font-size: 12px; font-weight: 600; color: var(--secondary); text-decoration: none; padding: 5px 12px; border-radius: 6px; background: var(--surf-2); border: 1px solid var(--line); transition: all 0.15s }
+.jump a:hover { background: var(--accent-light); color: var(--accent); border-color: var(--accent) }
+
+/* section cards */
+section {
+  background: var(--surf); border: 1px solid var(--line); border-radius: 14px;
+  padding: 24px 26px; margin-top: 20px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.04);
+}
+.sn {
+  flex: none; width: 26px; height: 26px; border-radius: 7px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: #fff; font-size: 11px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.deck { color: var(--muted); font-size: 13px; margin: 2px 0 16px }
+
+/* timeline */
+.tl-wrap { background: var(--surf); border: 1px solid var(--line); border-radius: 14px; padding: 20px 24px 14px; margin-top: 20px }
+.tl-label { font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px }
+.tl-band { position: relative; height: 100px }
+.tl-track { position: absolute; left: 0; right: 0; top: 50%; height: 6px; transform: translateY(-50%); background: var(--surf-3); border-radius: 999px; overflow: hidden }
+.tl-fill { height: 100%; width: 100%; background: linear-gradient(90deg, var(--feature-1), var(--feature-2), var(--feature-3), var(--feature-4), var(--feature-5), var(--feature-6)); border-radius: 999px }
+.tl-m { position: absolute; display: flex; align-items: center; transform: translateX(-50%) }
+.tl-m.below { flex-direction: column; top: calc(50% + 3px) }
+.tl-m.above { flex-direction: column-reverse; bottom: calc(50% + 3px) }
+.tl-m .dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--surf); flex: none }
+.tl-m.below .dot { margin-bottom: 4px }
+.tl-m.above .dot { margin-top: 4px }
+.tl-m .lbl { font-size: 9.5px; font-weight: 600; white-space: nowrap; text-align: center; line-height: 1.25 }
+.tl-m .dt { font-size: 9px; color: var(--muted); white-space: nowrap }
+
+/* stat tiles */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 14px }
+.stat-tile { background: var(--surf-2); border: 1px solid var(--line); border-radius: 10px; padding: 14px 14px; text-align: center }
+.stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px }
+.stat-val { font-size: 22px; font-weight: 800; line-height: 1.1; margin-bottom: 3px }
+.stat-val.up { color: var(--up) } .stat-val.dn { color: var(--dn) } .stat-val.flat { color: var(--flat) }
+.stat-sub { font-size: 11px; color: var(--muted); line-height: 1.35 }
+
+/* callout box */
+.note { background: var(--surf-2); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 12px 16px; font-size: 12.5px; color: var(--secondary); margin: 14px 0 }
+.note strong { color: var(--ink) }
+
+/* takeaway bullets */
+.takeaways { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 10px }
+.takeaways li { font-size: 13.5px; color: var(--body); line-height: 1.7; padding-left: 16px; position: relative }
+.takeaways li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); position: absolute; left: 0; top: 9px }
+.takeaways li strong { color: var(--ink) }
+
+/* feature cards */
+.feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 14px }
+.feat-card { background: var(--surf-2); border: 1px solid var(--line); border-radius: 11px; padding: 16px 18px }
+.feat-card h4 { font-size: 14px; font-weight: 700; color: var(--ink); margin: 0 0 2px }
+.feat-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; align-items: center }
+.feat-flag { font-size: 10px; font-family: monospace; background: var(--surf-3); border-radius: 4px; padding: 2px 6px; color: var(--muted) }
+.feat-date { font-size: 10.5px; color: var(--muted); font-weight: 600 }
+.pill-rolled { font-size: 10px; font-weight: 700; background: var(--up-bg); color: var(--up); border-radius: 999px; padding: 2px 8px; border: 1px solid currentColor }
+.feat-card p { font-size: 12.5px; color: var(--secondary); line-height: 1.6; margin: 0 0 8px }
+.feat-stats { display: flex; flex-wrap: wrap; gap: 6px }
+.feat-stat { font-size: 11px; background: var(--surf); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; color: var(--secondary) }
+.feat-stat b { color: var(--ink) }
+
+/* chart infrastructure */
+.chart-row { display: grid; gap: 14px; margin-top: 14px }
+.chart-row.g2 { grid-template-columns: 1fr 1fr }
+.chart-row.g3 { grid-template-columns: 1fr 1fr 1fr }
+@media (max-width: 640px) { .chart-row.g2, .chart-row.g3 { grid-template-columns: 1fr } }
+.chart-card { background: var(--surf-2); border: 1px solid var(--line); border-radius: 11px; padding: 16px; min-width: 0 }
+.cc-title { font-size: 12.5px; font-weight: 700; color: var(--ink); margin-bottom: 2px }
+.cc-sub { font-size: 11px; color: var(--muted); margin-bottom: 10px }
+.chart-wrap { position: relative }
+.h180 { height: 180px } .h200 { height: 200px } .h220 { height: 220px } .h260 { height: 260px }
+
+/* legend */
+.legend { display: flex; gap: 16px; margin: 10px 0 4px }
+.lg-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--secondary) }
+.lg-line { width: 16px; height: 2px; border-radius: 1px }
+
+/* cumulative table */
+.cum-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px }
+.cum-table th { text-align: left; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 8px 10px; border-bottom: 2px solid var(--line-2) }
+.cum-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); color: var(--body); font-variant-numeric: tabular-nums }
+.cum-table tr.sig-up td { background: var(--up-bg) }
+.cum-table tr.sig-dn td { background: var(--dn-bg) }
+.cum-table .group-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); background: var(--surf-2); padding: 6px 10px }
+.cum-table .metric-name { font-weight: 600; color: var(--ink) }
+.cum-table .pval { font-size: 11.5px }
+.cum-table .ci { font-size: 11px; color: var(--muted) }
+.cum-table .ns { color: var(--faint) }
+.cum-table .delta-pos { color: var(--up) }
+.cum-table .delta-neg { color: var(--dn) }
+.cum-table .delta-flat { color: var(--flat) }
+
+/* forest plot */
+.forest { margin-top: 14px }
+.forest-row { display: flex; align-items: center; gap: 0; padding: 6px 0; border-bottom: 1px solid var(--line) }
+.forest-row:last-child { border-bottom: none }
+.forest-label { width: 220px; flex: none; font-size: 12px; font-weight: 600; color: var(--ink) }
+.forest-plot { flex: 1; height: 24px; position: relative; min-width: 0 }
+.forest-axis { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--line-2) }
+.forest-bar { position: absolute; top: 50%; height: 3px; transform: translateY(-50%); background: var(--series-1); border-radius: 2px; opacity: 0.5 }
+.forest-dot { position: absolute; top: 50%; width: 10px; height: 10px; border-radius: 50%; background: var(--series-1); transform: translate(-50%, -50%); border: 2px solid var(--surf) }
+.forest-val { width: 80px; flex: none; text-align: right; font-size: 11.5px; color: var(--secondary); font-variant-numeric: tabular-nums }
+.forest-pval { width: 70px; flex: none; text-align: right; font-size: 11px; font-variant-numeric: tabular-nums }
+.forest-pval .ns { color: var(--faint) }
+
+/* bar chart (grouped) */
+.bar-group { display: flex; flex-direction: column; gap: 14px; margin-top: 14px }
+.bar-item { display: flex; align-items: center; gap: 12px }
+.bar-label { width: 160px; flex: none; font-size: 12px; font-weight: 600; color: var(--ink); text-align: right }
+.bar-tracks { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0 }
+.bar-track { height: 18px; border-radius: 4px 4px 4px 0; display: flex; align-items: center; position: relative }
+.bar-fill { height: 100%; border-radius: 4px 4px 4px 0; min-width: 2px }
+.bar-val { font-size: 10.5px; font-weight: 600; margin-left: 6px; white-space: nowrap }
+
+/* methodology */
+.method-grid { display: grid; grid-template-columns: 120px 1fr; gap: 4px 16px; font-size: 13px; margin-top: 8px }
+.method-grid dt { font-weight: 700; color: var(--ink); padding: 4px 0 }
+.method-grid dd { margin: 0; padding: 4px 0; color: var(--secondary); border-bottom: 1px solid var(--line) }
+code { font-size: 12px; background: var(--surf-2); border-radius: 3px; padding: 1px 5px }
+
+/* placeholder */
+.placeholder { background: var(--surf-3); border: 2px dashed var(--line-2); border-radius: 10px; padding: 20px; text-align: center; color: var(--muted); font-size: 13px; margin-top: 14px }
+</style>
+
+<!-- Cover -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="eyebrow">Experiment readout</div>
+    <h1 class="display">MLB Contextual Stats Holdout</h1>
+    <p class="sub">Analyzes whether five contextual information features (team L5 games, team records, broadcast info, starting pitchers, and starting lineups) compound into a measurable cumulative effect on MLB betting behavior over 81 days against a long-term holdout group.</p>
+    <div class="chips">
+      <div class="chip"><b>Flag</b> holdout-f1hnkdfh</div>
+      <div class="chip"><b>Window</b> Jul 7 to Sep 25, 2026</div>
+      <div class="chip"><b>Users</b> 166K holdout · 1.49M treatment (EP viewers)</div>
+      <div class="chip"><b>Retrospective</b> Features already rolled out</div>
+      <div class="chip"><b>5 features</b> in holdout</div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- Jump-to nav -->
+<nav class="jump">
+  <a href="#features">Features</a>
+  <a href="#summary">Summary</a>
+  <a href="#growth">Growth arc</a>
+  <a href="#cards">Feature detail</a>
+  <a href="#adoption">Adoption</a>
+  <a href="#comparison">Holdout comparison</a>
+  <a href="#conclusions">Conclusion</a>
+  <a href="#validation">Validation</a>
+  <a href="#methodology">Methodology</a>
+</nav>
+
+<!-- Timeline -->
+<div class="tl-wrap">
+  <div class="tl-label">Rollout timeline: 81-day holdout analysis window</div>
+  <div class="tl-band">
+    <div class="tl-track"><div class="tl-fill"></div></div>
+    <div id="tl-markers"></div>
+  </div>
+</div>
+
+<!-- 1. THE FEATURES -->
+<section id="features">
+  <h2><span class="sn">1</span>What we set out to measure</h2>
+  <p class="deck">Five contextual information features, one long-term holdout</p>
+
+  <p>Across MLB 2026, the Players, Stats &amp; Research workstream shipped a series of iterative improvements to the event page: team records, broadcast info, starting pitchers, starting lineups, and a team L5 games dropdown. Each was a small, additive context piece. Individually, none were expected to move the needle on their own. The hypothesis was that together, over time, they would compound into a measurable lift in MLB betting behavior: more informed users making more confident decisions, translating into higher engagement and handle.</p>
+
+  <p>This holdout is the instrument for that compound question. A persistent 10% of eligible users were withheld from all five features for 81 days (Jul 7 to Sep 25, 2026), while the remaining 90% received each feature as it launched. The analysis is restricted to users who viewed at least one pre-live MLB event page during the window (165,505 holdout / 1,486,436 treatment).</p>
+
+  <h3>Features in the holdout</h3>
+
+  <div class="feat-grid">
+    <div class="feat-card">
+      <h4>Team L5 Games Coupon</h4>
+      <div class="feat-meta">
+        <span class="feat-flag">atlutd_l5_coupon_stats</span>
+        <span class="feat-date">Jun 20</span>
+        <span class="pill-rolled">Rolled out</span>
+      </div>
+      <p>Dropdown showing each team's last 5 games with scores and form, accessible from the game-line coupon on home, event, and competition pages via a 3-bar icon.</p>
+    </div>
+    <div class="feat-card">
+      <h4>Team Records in Header</h4>
+      <div class="feat-meta">
+        <span class="feat-flag">event_sdui_team_records_header</span>
+        <span class="feat-date">Jul 7</span>
+        <span class="pill-rolled">Rolled out</span>
+      </div>
+      <p>Win-loss record displayed beneath each team name in the event header. First feature holdout-gated from launch.</p>
+    </div>
+    <div class="feat-card">
+      <h4>Broadcast Info in Header</h4>
+      <div class="feat-meta">
+        <span class="feat-flag">event_sdui_broadcast_header</span>
+        <span class="feat-date">Jul 23</span>
+        <span class="pill-rolled">Rolled out</span>
+      </div>
+      <p>TV icon and network/streaming name (e.g. "Apple TV+") below the game time in the event header.</p>
+    </div>
+  </div>
+  <div class="feat-grid" style="max-width:620px;margin:12px auto 0">
+    <div class="feat-card">
+      <h4>Starting Pitchers in Header</h4>
+      <div class="feat-meta">
+        <span class="feat-flag">event_sdui_header_starting_pitchers</span>
+        <span class="feat-date">Aug 14</span>
+        <span class="pill-rolled">Rolled out</span>
+      </div>
+      <p>Confirmed starting pitcher with ERA and handedness in the event header. Clicking links to the pitcher's player page.</p>
+    </div>
+    <div class="feat-card">
+      <h4>Starting Lineups in Header</h4>
+      <div class="feat-meta">
+        <span class="feat-flag">event_sdui_header_starting_lineups</span>
+        <span class="feat-date">Aug 27</span>
+        <span class="pill-rolled">Rolled out</span>
+      </div>
+      <p>Entry point opening a modal with both teams' confirmed starting lineups in batting order.</p>
+    </div>
+  </div>
+
+</section>
+
+<!-- 2. EXECUTIVE SUMMARY -->
+<section id="summary">
+  <h2><span class="sn">2</span>Executive summary</h2>
+  <p class="deck">81-day holdout comparison: 165,505 holdout vs 1,486,436 treatment (pre-live MLB EP viewers)</p>
+
+  <h3>Top takeaways</h3>
+  <ul class="takeaways">
+    <li><strong>The compound hypothesis did not materialize:</strong> All 7 primary success metrics are statistically null after Bonferroni correction. The five features remain collectively flat.</li>
+    <li><strong>GGR guardrail is clean:</strong> Pre-live MLB GGR per user is not statistically different between holdout ($107.04) and treatment ($112.57). The features did not harm revenue.</li>
+    <li><strong>Weekly trends show no divergence:</strong> Holdout and treatment track each other closely across 12 weeks of handle, GGR, and bet volume, with no inflection at any feature launch date.</li>
+    <li><strong>Individual features showed real adoption and promising signals:</strong> Starting Pitchers lifted bets per user in its own A/B. Lineups had 84.9% modal-to-selection intent. Team L5 had 51.5% open-to-bet CVR. These did not compound into a cumulative commercial effect.</li>
+    <li><strong>Event page retention is flat:</strong> Week-over-week return rate to pre-live MLB event pages is within 0.4pp every week. The features do not bring users back at a higher rate.</li>
+  </ul>
+
+  <div class="stat-grid" id="stat-tiles"></div>
+
+  <div class="note" style="margin-top:14px">
+    <strong>How to read these numbers.</strong> All metrics in this readout are restricted to pre-live MLB event page viewers (166K holdout / 1.49M treatment). Continuous metrics are winsorized at the 99th percentile within each variant. Per-user z-test, Bonferroni-adjusted across 7 primary metrics (adjusted alpha = 0.0071). The test can detect relative effects as small as ~1.5 to 2% on per-user means. n.s. = not statistically significant. <a href="#comparison">Full metric table with p-values and confidence intervals.</a>
+  </div>
+</section>
+
+<!-- 3. GROWTH ARC -->
+<section id="growth">
+  <h2><span class="sn">3</span>Growth arc: weekly trends</h2>
+  <p class="deck">Did the holdout and treatment diverge over 12 weeks?</p>
+
+  <p>If the five features compound, we'd expect the treatment line to pull away from the holdout as more features launch. Instead, they track each other week-over-week with no inflection at any feature ship date. The Jul 13 dip across most charts is the MLB All-Star break (no regular-season games). The decline after Sep 7 reflects the start of the NFL season, which shifted user attention away from MLB in both arms equally.</p>
+
+  <div class="legend">
+    <div class="lg-item"><div class="lg-line" style="background:var(--series-1)"></div>Treatment</div>
+    <div class="lg-item"><div class="lg-line" style="background:var(--series-2)"></div>Holdout</div>
+  </div>
+
+  <h3>Primary metrics</h3>
+  <div class="chart-row g2">
+    <div class="chart-card">
+      <div class="cc-title">Pre-Live MLB Handle per User</div>
+      <div class="cc-sub">Average handle per bettor (bet_legs)</div>
+      <div class="chart-wrap h220"><canvas id="ch-handle-per"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">Pre-Live MLB Bets per User</div>
+      <div class="cc-sub">COUNT(DISTINCT bet_id) per bettor (bet_legs)</div>
+      <div class="chart-wrap h220"><canvas id="ch-bets-per"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-row g2" style="margin-top:14px">
+    <div class="chart-card">
+      <div class="cc-title">Pre-Live MLB Selections per User</div>
+      <div class="cc-sub">COUNT(*) legs per bettor (bet_legs)</div>
+      <div class="chart-wrap h220"><canvas id="ch-sels-per"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">Pre-Live MLB GGR per User</div>
+      <div class="cc-sub">GGR per bettor (bet_legs)</div>
+      <div class="chart-wrap h220"><canvas id="ch-ggr-per"></canvas></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:22px">Player prop metrics</h3>
+  <div class="chart-row g2">
+    <div class="chart-card">
+      <div class="cc-title">MLB Player Prop Handle per User</div>
+      <div class="cc-sub">SUM(stake) per player prop bettor (bet_legs, market name filter)</div>
+      <div class="chart-wrap h200"><canvas id="ch-pp-handle"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">MLB Player Prop Bets per User</div>
+      <div class="cc-sub">COUNT(DISTINCT bet_id) per player prop bettor</div>
+      <div class="chart-wrap h200"><canvas id="ch-pp-bets"></canvas></div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:center;margin-top:14px">
+    <div class="chart-card" style="width:100%;max-width:500px">
+      <div class="cc-title">MLB Player Prop Selection Success Session Rate</div>
+      <div class="cc-sub">% of EP viewers with a pre-live MLB player prop Selection Success that week</div>
+      <div class="chart-wrap h200"><canvas id="ch-pp-ss-rate"></canvas></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:22px">Event page metrics</h3>
+  <div class="chart-row g2">
+    <div class="chart-card">
+      <div class="cc-title">MLB Event Page Handle per User</div>
+      <div class="cc-sub">SUM(Selection Stake), page=event, pre-live MLB</div>
+      <div class="chart-wrap h200"><canvas id="ch-ep-handle"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">MLB Event Page Bets per User</div>
+      <div class="cc-sub">SUM(Bet Count), page=event, pre-live MLB</div>
+      <div class="chart-wrap h200"><canvas id="ch-ep-bets"></canvas></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:22px">Guardrails</h3>
+  <div class="chart-row g2">
+    <div class="chart-card">
+      <div class="cc-title">Pre-Live MLB GGR per User</div>
+      <div class="cc-sub">GGR per bettor (bet_legs, winsorized p99)</div>
+      <div class="chart-wrap h200"><canvas id="ch-eggr"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">Overall Sessions per User</div>
+      <div class="cc-sub">Cumulative only (no weekly breakdown available from Databricks)</div>
+      <div style="display:flex;align-items:center;justify-content:center;height:200px;gap:40px">
+        <div style="text-align:center">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:4px">Holdout</div>
+          <div style="font-size:28px;font-weight:800;color:var(--flat)">166.52</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:4px">Treatment</div>
+          <div style="font-size:28px;font-weight:800;color:var(--flat)">165.96</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:4px">Delta</div>
+          <div style="font-size:28px;font-weight:800;color:var(--flat)">-0.34%</div>
+          <div style="font-size:11px;color:var(--muted)">n.s.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- 4. FEATURE DETAIL CARDS -->
+<section id="cards">
+  <h2><span class="sn">4</span>Feature-by-feature results</h2>
+  <p class="deck">Key results from each feature's individual test plan</p>
+
+  <p>Each feature was tested individually (7 to 14 day windows) before being rolled out. The holdout group never saw any of the five features. Below is the summary from each test plan, including adoption, primary metric, and guardrails.</p>
+
+  <div style="display:flex;flex-direction:column;gap:14px;margin-top:14px">
+    <!-- Team L5 Games -->
+    <div class="feat-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="width:4px;height:28px;border-radius:2px;background:var(--feature-1);flex:none"></div>
+        <div>
+          <h4 style="margin:0">Team L5 Games Coupon</h4>
+          <div class="feat-meta" style="margin:0"><span class="feat-flag">atlutd_l5_coupon_stats</span><span class="feat-date">Jun 20</span><a href="https://fanduel.atlassian.net/wiki/spaces/CSUTS/pages/311768089636" target="_blank" style="font-size:10.5px;font-weight:600">Test plan</a></div>
+        </div>
+      </div>
+      <p>Dropdown showing each team's last 5 games with scores. 6.13% of exposed users opened the dropdown; among openers, 51.5% went on to place a bet in the same session, a high-intent signal on a small base. All downstream metrics flat on the 7-day test window.</p>
+    </div>
+
+    <!-- Team Records -->
+    <div class="feat-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="width:4px;height:28px;border-radius:2px;background:var(--feature-2);flex:none"></div>
+        <div>
+          <h4 style="margin:0">Team Records in Header</h4>
+          <div class="feat-meta" style="margin:0"><span class="feat-flag">event_sdui_team_records_header</span><span class="feat-date">Jul 7</span><a href="https://fanduel.atlassian.net/wiki/spaces/CSUTS/pages/311793386129" target="_blank" style="font-size:10.5px;font-weight:600">Test plan</a></div>
+        </div>
+      </div>
+      <p>Win-loss records in the event header. Handle/User was the only metric to clear statistical significance at +1.67%. All other metrics flat. The analysis window starts here; this is the first feature that launched inside the holdout window.</p>
+    </div>
+
+    <!-- Broadcast Info -->
+    <div class="feat-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="width:4px;height:28px;border-radius:2px;background:var(--feature-2);flex:none"></div>
+        <div>
+          <h4 style="margin:0">Broadcast Info in Header</h4>
+          <div class="feat-meta" style="margin:0"><span class="feat-flag">event_sdui_broadcast_header</span><span class="feat-date">Jul 23</span><a href="https://fanduel.atlassian.net/wiki/spaces/CSUTS/pages/311837918175" target="_blank" style="font-size:10.5px;font-weight:600">Test plan</a></div>
+        </div>
+      </div>
+      <p>TV network/streaming platform name below the game time. Every tracked metric trended positive: EP Bet CVR +0.2%, EP Opens +0.3%, Handle +0.3%. No guardrail harm. A small, additive nudge that keeps "how to watch" context in-app.</p>
+    </div>
+
+    <!-- Starting Pitchers -->
+    <div class="feat-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="width:4px;height:28px;border-radius:2px;background:var(--feature-4);flex:none"></div>
+        <div>
+          <h4 style="margin:0">Starting Pitchers in Header</h4>
+          <div class="feat-meta" style="margin:0"><span class="feat-flag">event_sdui_header_starting_pitchers</span><span class="feat-date">Aug 14</span><a href="https://fanduel.atlassian.net/wiki/spaces/CSUTS/pages/311919772787" target="_blank" style="font-size:10.5px;font-weight:600">Test plan</a></div>
+        </div>
+      </div>
+      <p>Confirmed starting pitcher with ERA and handedness in the header. The strongest individual signal: Pre-Live MLB Bets/User rose from 16.24 to 16.60, with EP CVR and handle trending upward. 4.72% of users clicked into the pitcher card; MLB player page visit share rose from 35.0% to 38.5%. All three guardrails cleared non-inferiority.</p>
+    </div>
+
+    <!-- Starting Lineups -->
+    <div class="feat-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="width:4px;height:28px;border-radius:2px;background:var(--feature-3);flex:none"></div>
+        <div>
+          <h4 style="margin:0">Starting Lineups in Header</h4>
+          <div class="feat-meta" style="margin:0"><span class="feat-flag">event_sdui_header_starting_lineups</span><span class="feat-date">Aug 27</span><a href="https://fanduel.atlassian.net/wiki/spaces/CSUTS/pages/311963125208" target="_blank" style="font-size:10.5px;font-weight:600">Test plan</a></div>
+        </div>
+      </div>
+      <p>Modal showing both teams' confirmed lineups in batting order. CVR and ASR both flat, but 84.9% of modal opens led to a selection, a high-intent signal on a small base. 7.87% of exposed users opened the modal. Overall Handle/User and SWAP cleared guardrails; Pre-Live MLB Handle/User and GGR/User missed NI by a small margin.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5. RESEARCH & ADOPTION -->
+<section id="adoption">
+  <h2><span class="sn">5</span>Research &amp; adoption behavior</h2>
+  <p class="deck">Event page engagement and week-over-week retention</p>
+
+  <p>Treatment users have access to five features that surface research context directly on the event page. If these features work, we'd expect treatment users to engage more deeply with the event page and return to it more often.</p>
+
+  <div class="legend">
+    <div class="lg-item"><div class="lg-line" style="background:var(--series-1)"></div>Treatment</div>
+    <div class="lg-item"><div class="lg-line" style="background:var(--series-2)"></div>Holdout</div>
+  </div>
+
+  <div class="chart-row g2">
+    <div class="chart-card">
+      <div class="cc-title">MLB Event Page Week-over-Week Retention</div>
+      <div class="cc-sub">% of week-N EP visitors who returned to a pre-live MLB EP in week N+1</div>
+      <div class="chart-wrap h220"><canvas id="ch-ep-retention"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">MLB Event Page Views per Viewer</div>
+      <div class="cc-sub">Average EP views per viewer that week</div>
+      <div class="chart-wrap h220"><canvas id="ch-ep-views"></canvas></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:20px">Feature adoption over time (treatment only)</h3>
+  <p>Weekly adoption rate: unique users of each feature as a % of pre-live MLB event page viewers that week. Source: Amplitude (treatment segment only). Pitcher and lineup features launched mid-August and adoption grew over time. Team L5 Games was turned off in mid-August, visible as the drop to zero.</p>
+
+  <div class="chart-row g2">
+    <div class="chart-card" style="grid-column:1/-1;max-width:600px;margin:0 auto">
+      <div class="cc-title">Weekly Feature Adoption Rate (treatment only)</div>
+      <div class="cc-sub">% of MLB EP viewers who used each feature that week (Amplitude)</div>
+      <div class="chart-wrap h220"><canvas id="ch-adoption"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. CUMULATIVE HOLDOUT COMPARISON -->
+<section id="comparison">
+  <h2><span class="sn">6</span>Cumulative holdout comparison</h2>
+  <p class="deck">Per-user winsorized (p99) means, pre-live MLB EP viewers, Jul 7 to Sep 25</p>
+
+  <p>The definitive metric table. Population restricted to users who viewed at least one pre-live MLB event page (165,505 holdout / 1,486,436 treatment). All continuous metrics are computed per-user, winsorized at the 99th percentile within each variant, and compared via a two-sided z-test. Primary metrics are Bonferroni-corrected across 7 comparisons (adjusted alpha = 0.0071). Guardrails and behavioral metrics are reported without family-wise correction.</p>
+
+  <!-- Forest plot for primary metrics -->
+  <h3>Primary success metrics: forest plot</h3>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:8px">Relative change (%) with Bonferroni-adjusted 99.375% CI. Center line = 0 (no effect). n.s. = not significant.</p>
+  <div class="forest" id="forest-primary"></div>
+
+  <!-- Full table -->
+  <h3>All metrics</h3>
+  <table class="cum-table">
+    <thead>
+      <tr><th>Metric</th><th>Holdout</th><th>Treatment</th><th>Δ (rel)</th><th>p</th><th style="min-width:100px">CI</th></tr>
+    </thead>
+    <tbody id="cum-tbody"></tbody>
+  </table>
+</section>
+
+<!-- 7. CONCLUSIONS -->
+<section id="conclusions">
+  <h2><span class="sn">7</span>Conclusion</h2>
+  <p class="deck">What we learned from 81 days of holdout data</p>
+
+  <h3>The compound hypothesis was null</h3>
+  <p>The central question was whether five individually-flat contextual information features would compound into a measurable cumulative effect on MLB betting behavior. They did not. Across 7 primary metrics, 3 guardrails, and multiple behavioral cuts, all computed per-user, winsorized, and restricted to pre-live MLB event page viewers, there is no detectable difference between the holdout and treatment groups. The null is robust: it holds across calendar-aligned and days-since-bucketing analyses, across value segments, and across the full 81-day window.</p>
+
+  <h3>The features are not without value</h3>
+  <p>Individual feature tests showed real adoption and genuine user intent. Starting Pitchers lifted Bets/User in its own A/B. Starting Lineups had 84.9% modal-to-selection conversion. Team L5 Games had 51.5% open-to-bet conversion among adopters. These signals are real: they show users engaging with contextual information and acting on it. What they don't do is shift the population-level commercial metrics. The features make the event page more informative without making it more commercially productive.</p>
+
+  <h3>Experiment design considerations</h3>
+  <ul class="takeaways">
+    <li><strong>Team L5 Games was added to the holdout after its own A/B (Jun 20 to 27).</strong> Holdout users may have had brief exposure before suppression, a small contamination window that biases toward null.</li>
+    <li><strong>Team L5 Games was rolled back due to a bug.</strong> The feature was turned off in late August after causing a bug, removing one of the five features from the treatment experience for the last month of the window. Treatment users had only four active features for roughly a third of the analysis period.</li>
+    <li><strong>Team Records had intermittent display issues during its test window.</strong> The feature appeared and disappeared, so treatment exposure was inconsistent. Analysis was anchored to a clean sub-window (Jul 31 to Aug 9) rather than the full run.</li>
+    <li><strong>NFL season overlap after Sep 7</strong> introduced a reactivation wave into both arms. The holdout test plan recommended wrapping before NFL kickoff; this analysis runs 3 weeks past it. The late-window dilution from NFL-driven users (who visit for football, not MLB) works against detecting an MLB-specific effect.</li>
+
+  </ul>
+
+  <h3>Why did this not work the way we expected?</h3>
+  <ul class="takeaways">
+    <li><strong>The features may be too small individually to compound:</strong> Each feature is a passive information display (a record, a name, a network). None changes the betting interaction itself. Users notice them (adoption is real) but their decisions don't change measurably.</li>
+    <li><strong>Context may reduce friction without increasing volume:</strong> Users who already bet on MLB get slightly better-informed, but they were going to bet anyway. The features solve a research problem, not a conversion problem.</li>
+    <li><strong>The window included MLB's declining engagement arc:</strong> Jul through Sep is the second half of the MLB season. If compounding requires users to build a research habit, the declining seasonal interest works against that.</li>
+  </ul>
+
+  <h3>Next steps and off-season hypotheses</h3>
+  <ul class="takeaways">
+    <li><strong>Test features that change the interaction, not just the information:</strong> Quick-bet surfaces on stats (e.g. "bet the over on this pitcher's strikeouts" directly from the pitcher card) might convert the engagement that contextual stats create.</li>
+    <li><strong>Run the holdout across a full sport lifecycle for 2027 NFL or NBA:</strong> A holdout from season opener through the end of the regular season gives the compound hypothesis its best shot, with the highest-engagement users in the window from day one.</li>
+  </ul>
+
+  <h3>Assumptions to revisit</h3>
+  <ul class="takeaways">
+    <li><strong>The "give a mouse a cookie" effect:</strong> The current features may give users just enough context to become more curious about their bet, but not enough to satisfy that curiosity in-app. If users engage with a starting pitcher's ERA and then leave the app to research further, the features could be driving external research rather than replacing it. Future features should test whether closing the loop in-app (deeper stats, player comparisons, historical matchups) converts that curiosity into action.</li>
+    <li><strong>Does more data actually make users more confident or decisive?</strong> The core assumption behind contextual stats is that information leads to confidence and confidence leads to betting. But some users may see data that causes them to second-guess their instinct, either deciding not to bet or to bet less. If the features occasionally talk users out of a bet, the net commercial effect could be zero even with real engagement. Worth measuring directly: do users who interact with these features place bets at the same rate as those who don't?</li>
+  </ul>
+</section>
+
+<!-- 8. VALIDATION & DEEP DIVES -->
+<section id="validation">
+  <h2><span class="sn">8</span>Validation &amp; deep dives</h2>
+  <p class="deck">Population balance and segment-level analysis</p>
+
+  <h3>Population balance (sbk_value_segment_new 30d)</h3>
+  <p>Value segment from the <code>sbk_value_segment_new</code> user property on Event Page Viewed events (mode per user). Randomization is clean, with every segment within ±0.1pp.</p>
+  <div class="chart-row g2">
+    <div class="chart-card">
+      <div class="cc-title">Segment distribution, EP viewers</div>
+      <div class="cc-sub">sbk_value_segment_new, holdout vs treatment (%)</div>
+      <div class="chart-wrap h260"><canvas id="ch-seg-dist"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">Handle / User by segment (winsorized p99)</div>
+      <div class="cc-sub">Pre-live MLB handle per EP viewer, bet_legs, p99 capped</div>
+      <div class="chart-wrap h260"><canvas id="ch-seg-handle"></canvas></div>
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:12px">
+    <strong>Post-winsorization, handle is balanced across segments.</strong> The raw (pre-winsorization) data showed holdout key accounts at $30.7K vs treatment $22.1K (down 28%), driven by a few extreme users. After p99 capping, key accounts are $7,517 vs $7,538 (+0.3%), flat. The one outlier is the lapsed segment (holdout $155 vs treatment $113, down 27%), but it's only 1.7% of EP viewers and small n. Mid-tier segments (casual through medium 4, ~60% of EP viewers) are all within +/- 2%.
+  </div>
+  <div class="note" style="margin-top:8px">
+    <strong>Lapsed segment:</strong> The lapsed segment shows holdout handle at $153 vs treatment $112 (down 27%), but this is only 2,865 holdout / 25,288 treatment users (1.7% of EP viewers). Small n amplifies noise; this is not a meaningful signal.
+  </div>
+  <div class="note" style="margin-top:8px">
+    <strong>Note:</strong> All segment charts show pre-live MLB metrics among EP viewers. The GGR-by-segment chart uses eGGR (expected GGR) rather than actual GGR, because actual GGR is extremely noisy at the segment level (key account holdout actual GGR was negative due to a handful of big winners).
+  </div>
+
+  <h3>Segment-level z-tests (handle per user, winsorized p99)</h3>
+  <p>Per-segment two-sided z-test on handle per user. None of the segments that matter (casual through key account) show a statistically significant difference.</p>
+  <table class="cum-table" id="seg-ztable"></table>
+
+  <h3 style="margin-top:20px">Bets per user by segment</h3>
+  <div class="chart-row g2">
+    <div class="chart-card">
+      <div class="cc-title">Bets / User by segment (winsorized p99)</div>
+      <div class="cc-sub">Pre-live MLB bets per EP viewer, bet_legs, p99 capped</div>
+      <div class="chart-wrap h260"><canvas id="ch-seg-bets"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="cc-title">eGGR / User by segment (winsorized p99)</div>
+      <div class="cc-sub">Overall eGGR per EP viewer, bet_legs_eggr, p99 capped</div>
+      <div class="chart-wrap h260"><canvas id="ch-seg-ggr"></canvas></div>
+    </div>
+  </div>
+
+</section>
+
+<!-- 9. METHODOLOGY -->
+<section id="methodology">
+  <h2><span class="sn">9</span>Methodology</h2>
+  <p class="deck">Cohort construction, data sources, statistical approach</p>
+
+  <dl class="method-grid">
+    <dt>Flag</dt>
+    <dd><code>[Experiment] holdout-f1hnkdfh</code>, treatment = <code>on</code>, control = <code>holdout</code></dd>
+
+    <dt>Cohort</dt>
+    <dd>Materialized at <code>sandbox.sportsbook_commercial_product_analytics.holdout_contextual_stats_cohort</code>. Treatment: 3,847,658 users (~90%). Holdout: 427,745 users (~10%). Users bucketed on a rolling basis as eligible.</dd>
+
+    <dt>Window</dt>
+    <dd>Jul 7 to Sep 25, 2026 (81 days). Team Records launched Jul 7; analysis starts there. Features already rolled out for playoffs. This is a retrospective analysis.</dd>
+
+    <dt>Gated flags</dt>
+    <dd><code>atlutd_l5_coupon_stats</code>, <code>event_sdui_team_records_header</code>, <code>event_sdui_broadcast_header</code>, <code>event_sdui_header_starting_pitchers</code>, <code>event_sdui_header_starting_lineups</code></dd>
+
+
+    <dt>Stat test</dt>
+    <dd>Two-sided z-test on the Welch (unequal-variance) statistic. Analytical confidence intervals. Bonferroni correction across 7 primary metrics (adjusted alpha = 0.0071). Guardrails and behavioral metrics reported at α = 0.05 without family-wise correction.</dd>
+
+    <dt>Winsorization</dt>
+    <dd>All continuous metrics winsorized at the 99th percentile within each variant before testing. Harsher than the standard 99.5th due to the ~9:1 size asymmetry (428K holdout vs 3.85M treatment).</dd>
+
+    <dt>Bet data</dt>
+    <dd><code>core_views.sportsbook.bet_legs</code> for handle, GGR, bets, selections, player prop legs. <code>core_views.sportsbook.bet_legs_eggr</code> for eGGR. Pre-live MLB filtered by <code>is_event_in_play = FALSE</code> and <code>leg_competition_name_reporting LIKE '%mlb%'</code>. Player props filtered by market name patterns.</dd>
+
+    <dt>Amplitude data</dt>
+    <dd>Event Page metrics (EP bets, EP handle, EP bet share) from <code>amplitude_sportsbook_bet</code> via <code>Selection Success</code> events with <code>Selection Page Name Source LIKE '%event%'</code>. Sessions, CVR, and ATBS from <code>amplitude_sportsbook_page_view</code> joined to bet events. All joined to cohort via <code>user_id</code>.</dd>
+
+    <dt>Base filters</dt>
+    <dd>All metrics: <code>is_test_account = FALSE</code>, <code>is_clubhouse_account = FALSE</code>. Pre-live MLB: <code>In Play = false</code>, <code>Competition = mlb</code>. ATBS uses <code>Add Selection to Betslip</code>, not <code>Selection Success</code>.</dd>
+  </dl>
+</section>
+
+</div><!-- .page -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const WEEKS = ['Jul 06','Jul 13','Jul 20','Jul 27','Aug 03','Aug 10','Aug 17','Aug 24','Aug 31','Sep 07','Sep 14','Sep 21'];
+const N = WEEKS.length;
+
+// ---- DATA (Databricks) ----
+const DB = {
+  // Weekly per-user means (EP viewers, winsorized p99 per variant per week)
+  w_handle_h: [161.55,109.75,170.29,182.34,162.25,160.67,154.13,150.85,140.74,108.58,106.14,100.56],
+  w_handle_o: [160.16,108.78,168.79,179.37,160.03,158.24,153.63,147.71,140.57,107.59,103.61,98.71],
+  w_ggr_h: [12.13,18.39,22.20,34.53,26.03,6.97,-17.88,14.15,32.12,10.49,-7.78,22.27],
+  w_ggr_o: [12.34,17.43,24.71,35.69,28.63,17.71,-5.62,13.28,30.75,9.86,-3.02,17.44],
+  w_bets_h: [15.34,8.99,13.42,13.85,12.57,12.99,12.65,11.85,12.21,10.13,9.93,9.17],
+  w_bets_o: [15.26,8.96,13.44,13.85,12.54,13.05,12.67,11.90,12.29,10.08,9.83,9.10],
+  w_sels_h: [69.54,36.13,64.23,64.99,58.33,57.06,57.64,53.31,58.53,45.74,45.25,40.90],
+  w_sels_o: [69.06,35.93,64.27,65.24,58.40,57.39,57.51,53.52,58.53,45.61,44.89,40.84],
+  // Weekly eGGR (all sports) — Databricks query 2
+  eggr_h_bettors: [154320,139178,98718,100552,106575,119769,116172,124579,152284,287597,287467,264770],
+  eggr_o_bettors: [1386684,1249390,882569,901267,959612,1074276,1043212,1118160,1362637,2583954,2585775,2377459],
+  mean_eggr_h: [58.53,48.92,63.13,71.57,66.00,60.55,67.35,62.67,57.87,37.34,48.93,46.50],
+  mean_eggr_o: [58.76,48.34,64.35,70.72,65.45,59.41,66.60,63.24,60.66,37.90,49.59,47.50],
+  // Weekly PP (PP bettors only) — Databricks query 3
+  pp_bettors_h: [58977,60389,58224,56857,56589,56303,55211,52621,55582,53086,57149,53851],
+  pp_bettors_o: [531597,543703,520334,509324,508958,506595,494923,474633,496534,475815,512785,482180],
+  mean_pp_handle_h: [116.76,74.14,105.03,106.13,91.09,96.34,89.45,85.22,92.02,77.09,71.67,65.50],
+  mean_pp_handle_o: [120.82,74.37,109.20,108.48,92.46,98.00,94.03,88.49,97.77,79.35,72.82,67.25],
+  mean_pp_bets_h: [15.55,7.93,12.67,12.85,11.36,12.21,11.94,11.36,12.35,10.63,9.83,8.78],
+  mean_pp_bets_o: [15.35,7.80,12.61,12.70,11.15,11.97,11.85,11.17,12.23,10.40,9.63,8.64],
+  // Weekly EP bets/handle (Amplitude Selection Success, page=event) — Databricks query 4
+  ep_bettors_h: [46927,38978,50044,48915,48197,46798,45436,42749,44096,41597,43000,39967],
+  ep_bettors_o: [422397,349470,447030,437599,432408,421574,408251,384868,394895,371858,384374,357111],
+  mean_ep_handle_h: [90.93,61.16,94.04,103.28,91.38,94.05,89.22,81.51,78.23,64.38,63.53,59.34],
+  mean_ep_handle_o: [89.90,60.39,98.22,101.82,92.91,94.06,90.22,83.89,82.80,66.28,63.32,60.57],
+  mean_ep_bets_h: [5.29,3.15,4.84,4.99,4.49,4.74,4.60,4.27,4.44,3.83,3.66,3.25],
+  mean_ep_bets_o: [5.11,3.05,4.73,4.89,4.33,4.56,4.45,4.13,4.31,3.70,3.51,3.15],
+  // Weekly PP Selection Success session rate (% of EP viewers, 11 weeks Jul 06 to Sep 14)
+  w_pp_ss_h: [18.65,15.30,21.55,21.25,20.65,20.45,19.05,17.75,19.03,17.16,16.66],
+  w_pp_ss_o: [18.70,15.24,21.48,21.23,20.67,20.51,19.03,17.80,19.01,17.12,16.65],
+  // Weekly MLB EP views per viewer (among viewers that week)
+  w_ep_views_h: [32.06,17.65,31.96,32.23,27.44,27.68,27.23,24.82,27.12,22.14,16.99,12.31],
+  w_ep_views_o: [31.18,17.40,31.65,31.83,27.05,27.30,27.13,25.08,27.42,22.47,16.94,12.42],
+
+  // Cumulative per-user (winsorized p99) — EP viewers only (165,505 holdout / 1,486,436 treatment)
+  cum: {
+    n_h: 165505, n_t: 1486436,
+    metrics: [
+      // Primary (Bonferroni /7)
+      {name:'Pre-Live MLB Handle / User', group:'primary', h:724.97, h_std:2061.65, t:721.57, t_std:2044.42, fmt:'$', n_comp:7},
+      {name:'Pre-Live MLB Bets / User', group:'primary', h:60.74, h_std:128.28, t:60.54, t_std:127.80, fmt:'', n_comp:7},
+      {name:'Pre-Live MLB Selections / User', group:'primary', h:275.96, h_std:643.94, t:275.28, t_std:644.78, fmt:'', n_comp:7},
+      {name:'Pre-Live MLB Player Prop Handle / User', group:'primary', h:273.30, h_std:810.64, t:274.30, t_std:820.43, fmt:'$', n_comp:7},
+      {name:'Pre-Live MLB Player Prop Bets / User', group:'primary', h:38.76, h_std:103.05, t:38.51, t_std:102.50, fmt:'', n_comp:7},
+      {name:'Pre-Live MLB EP Bets / User', group:'primary', h:3.83, h_std:14.04, t:3.79, t_std:13.80, fmt:'', n_comp:7},
+      {name:'MLB Player Prop Selection Success Session Rate', group:'primary', h:54.23, h_std:49.83, t:54.14, t_std:49.83, fmt:'%', n_comp:7},
+      // Guardrails (no Bonferroni)
+      {name:'Pre-Live MLB GGR / User', group:'guardrail', h:107.04, h_std:3009.95, t:112.57, t_std:1263.14, fmt:'$', n_comp:1},
+      {name:'Overall Sessions / User', group:'guardrail', h:166.52, h_std:321.64, t:165.96, t_std:321.31, fmt:'', n_comp:1},
+      {name:'Pre-Live MLB EP CVR', group:'guardrail', h:37.85, h_std:48.51, t:37.78, t_std:48.49, fmt:'%', n_comp:1},
+      // Behavioral (bettors only, among EP viewers)
+      {name:'Pre-Live MLB Player Prop Bet Share (%)', group:'behavioral', h:56.14, h_std:38.33, t:56.12, t_std:38.27, fmt:'%', n_comp:1, n_h:150391, n_t:1350254},
+    ]
+  }
+};
+
+// Derived series (winsorized per-user means)
+const D = {
+  handlePer_o: DB.w_handle_o,
+  handlePer_h: DB.w_handle_h,
+  ggrPer_o: DB.w_ggr_o,
+  ggrPer_h: DB.w_ggr_h,
+  bets_o: DB.w_bets_o,
+  bets_h: DB.w_bets_h,
+  sels_o: DB.w_sels_o,
+  sels_h: DB.w_sels_h,
+  eggr_o: DB.mean_eggr_o,
+  eggr_h: DB.mean_eggr_h,
+  pp_handle_o: DB.mean_pp_handle_o,
+  pp_handle_h: DB.mean_pp_handle_h,
+  pp_bets_o: DB.mean_pp_bets_o,
+  pp_bets_h: DB.mean_pp_bets_h,
+  ep_handle_o: DB.mean_ep_handle_o,
+  ep_handle_h: DB.mean_ep_handle_h,
+  ep_bets_o: DB.mean_ep_bets_o,
+  ep_bets_h: DB.mean_ep_bets_h,
+};
+
+// ---- STAT COMPUTATIONS ----
+function zTest(h, h_std, n_h, t, t_std, n_t, n_comp) {
+  const alpha = 0.05;
+  const alpha_adj = alpha / Math.max(n_comp, 1);
+  const se = Math.sqrt(h_std**2 / n_h + t_std**2 / n_t);
+  const diff = t - h;
+  const pct = h !== 0 ? (diff / h * 100) : 0;
+  const z = se > 0 ? diff / se : 0;
+  // 2-sided p from normal
+  const p = 2 * (1 - normalCDF(Math.abs(z)));
+  const crit = normalInv(1 - alpha_adj / 2);
+  const ci_lo = diff - crit * se;
+  const ci_hi = diff + crit * se;
+  return { diff, pct, se, z, p, ci_lo, ci_hi, sig: p < alpha_adj, alpha_adj };
+}
+
+function normalCDF(x) {
+  const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
+  const sign = x < 0 ? -1 : 1;
+  x = Math.abs(x) / Math.SQRT2;
+  const t = 1 / (1 + p * x);
+  const y = 1 - ((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return 0.5 * (1 + sign * y);
+}
+
+function normalInv(p) {
+  // Rational approximation for inverse normal
+  if (p <= 0) return -Infinity; if (p >= 1) return Infinity;
+  if (p < 0.5) return -normalInv(1 - p);
+  const t = Math.sqrt(-2 * Math.log(1 - p));
+  const c0=2.515517, c1=0.802853, c2=0.010328, d1=1.432788, d2=0.189269, d3=0.001308;
+  return t - (c0 + c1*t + c2*t*t) / (1 + d1*t + d2*t*t + d3*t*t*t);
+}
+
+function fmtVal(v, fmt) {
+  if (fmt === '$') return '$' + v.toFixed(2);
+  if (fmt === '%') return v.toFixed(2) + '%';
+  return v.toFixed(2);
+}
+
+function fmtP(p) {
+  if (p < 0.001) return '<0.001';
+  return p.toFixed(4);
+}
+
+// ---- STAT TILES ----
+(function() {
+  const container = document.getElementById('stat-tiles');
+  const tiles = [
+    {label:'Handle / User', h:724.97, t:721.57, fmt:'$'},
+    {label:'GGR / User', h:107.04, t:112.57, fmt:'$'},
+    {label:'Bets / User', h:60.74, t:60.54, fmt:''},
+    {label:'Selections / User', h:275.96, t:275.28, fmt:''},
+    {label:'Player Prop Handle / User', h:273.30, t:274.30, fmt:'$'},
+  ];
+  tiles.forEach(tile => {
+    const diff = tile.t - tile.h;
+    const rel = tile.h !== 0 ? (diff / tile.h * 100) : 0;
+    const sign = rel > 0 ? '+' : '';
+    // Only color stat-sig values green/red; everything else stays grey
+    const cls = tile.sig ? (diff > 0 ? 'up' : 'dn') : 'flat';
+    const el = document.createElement('div');
+    el.className = 'stat-tile';
+    el.innerHTML = `<div class="stat-label">${tile.label}</div><div class="stat-val ${cls}">${sign}${rel.toFixed(2)}%</div><div class="stat-sub">holdout ${fmtVal(tile.h, tile.fmt)} &rarr; treatment ${fmtVal(tile.t, tile.fmt)}</div>`;
+    container.appendChild(el);
+  });
+})();
+
+// ---- FOREST PLOT ----
+(function() {
+  const container = document.getElementById('forest-primary');
+  const cum = DB.cum;
+  const primary = cum.metrics.filter(m => m.group === 'primary');
+  // Compute scale — find the widest CI
+  const results = primary.map(m => {
+    const n_h = m.n_h || cum.n_h;
+    const n_t = m.n_t || cum.n_t;
+    const r = zTest(m.h, m.h_std, n_h, m.t, m.t_std, n_t, m.n_comp);
+    return { ...m, ...r, pct_ci_lo: m.h !== 0 ? r.ci_lo / m.h * 100 : 0, pct_ci_hi: m.h !== 0 ? r.ci_hi / m.h * 100 : 0 };
+  });
+  const maxAbsCI = Math.max(...results.map(r => Math.max(Math.abs(r.pct_ci_lo), Math.abs(r.pct_ci_hi))));
+  const scale = Math.ceil(maxAbsCI * 1.3);
+
+  results.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'forest-row';
+
+    const pctToX = pct => 50 + (pct / scale) * 50;
+    const dotX = pctToX(r.pct);
+    const barL = pctToX(r.pct_ci_lo);
+    const barR = pctToX(r.pct_ci_hi);
+
+    row.innerHTML = `
+      <div class="forest-label">${r.name.replace('Pre-Live MLB ', '')}</div>
+      <div class="forest-plot">
+        <div class="forest-axis"></div>
+        <div class="forest-bar" style="left:${barL}%;width:${barR - barL}%"></div>
+        <div class="forest-dot" style="left:${dotX}%"></div>
+      </div>
+      <div class="forest-val">${r.pct > 0 ? '+' : ''}${r.pct.toFixed(2)}%</div>
+      <div class="forest-pval"><span class="ns">n.s.</span></div>
+    `;
+    container.appendChild(row);
+  });
+})();
+
+// ---- CUMULATIVE TABLE ----
+(function() {
+  const tbody = document.getElementById('cum-tbody');
+  const cum = DB.cum;
+  let currentGroup = '';
+
+  cum.metrics.forEach(m => {
+    if (m.group !== currentGroup) {
+      currentGroup = m.group;
+      const label = {primary:'Primary success metrics (Bonferroni alpha=0.0071)', guardrail:'Guardrails (α=0.05)', behavioral:'Behavioral / mix (informational)'}[currentGroup];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="6" class="group-header">${label}</td>`;
+      tbody.appendChild(tr);
+    }
+    const n_h = m.n_h || cum.n_h;
+    const n_t = m.n_t || cum.n_t;
+    const r = zTest(m.h, m.h_std, n_h, m.t, m.t_std, n_t, m.n_comp);
+    const deltaCls = r.sig ? (r.pct > 0 ? 'delta-pos' : 'delta-neg') : 'delta-flat';
+    const pctCI_lo = m.h !== 0 ? (r.ci_lo / m.h * 100) : 0;
+    const pctCI_hi = m.h !== 0 ? (r.ci_hi / m.h * 100) : 0;
+
+    const tr = document.createElement('tr');
+    tr.className = r.sig ? (r.pct > 0 ? 'sig-up' : 'sig-dn') : '';
+    tr.innerHTML = `
+      <td class="metric-name">${m.name}</td>
+      <td>${fmtVal(m.h, m.fmt)}</td>
+      <td>${fmtVal(m.t, m.fmt)}</td>
+      <td class="${deltaCls}">${r.pct > 0 ? '+' : ''}${r.pct.toFixed(2)}%</td>
+      <td class="pval ${r.sig ? '' : 'ns'}">${fmtP(r.p)}</td>
+      <td class="ci">[${pctCI_lo > 0 ? '+' : ''}${pctCI_lo.toFixed(2)}%, ${pctCI_hi > 0 ? '+' : ''}${pctCI_hi.toFixed(2)}%]</td>
+    `;
+    tbody.appendChild(tr);
+  });
+})();
+
+// ---- CHARTS ----
+function cv(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() }
+function tok() { return { s1: cv('--series-1'), s2: cv('--series-2'), grid: cv('--line'), muted: cv('--muted'), f4: cv('--feature-4'), f3: cv('--feature-3') } }
+
+// Annotation plugin for feature ship dates
+const annPlugin = {
+  id: 'ann',
+  beforeDraw(chart, _, opts) {
+    const { ctx, chartArea: ca, scales } = chart;
+    if (!scales.x || !opts.lines) return;
+    opts.lines.forEach(({ idx, color }) => {
+      const x = scales.x.getPixelForValue(idx);
+      if (x < ca.left || x > ca.right) return;
+      ctx.save(); ctx.setLineDash([4, 4]); ctx.strokeStyle = color; ctx.lineWidth = 1.2; ctx.globalAlpha = 0.4;
+      ctx.beginPath(); ctx.moveTo(x, ca.top); ctx.lineTo(x, ca.bottom); ctx.stroke(); ctx.restore();
+    });
+  },
+  afterDraw(chart, _, opts) {
+    const { ctx, chartArea: ca, scales } = chart;
+    if (!scales.x || !opts.lines) return;
+    opts.lines.forEach(({ idx, color, label }, i) => {
+      if (!label) return;
+      const x = scales.x.getPixelForValue(idx);
+      if (x < ca.left || x > ca.right) return;
+      const yOffset = ca.top + 11 + (i % 2) * 12;
+      ctx.save(); ctx.globalAlpha = 0.8; ctx.font = 'bold 8px Inter, sans-serif';
+      ctx.fillStyle = color; ctx.textAlign = 'left'; ctx.fillText(label, x + 3, yOffset); ctx.restore();
+    });
+  }
+};
+Chart.register(annPlugin);
+
+function getAnn() {
+  const t = tok();
+  return [
+    { idx: 0, color: t.f2, label: 'Records' },
+    { idx: 2, color: t.f2, label: 'Broadcast' },
+    { idx: 5, color: t.f4, label: 'Pitchers' },
+    { idx: 7, color: t.f3, label: 'Lineups' },
+  ];
+}
+
+function makeTS(id, onData, holdData, { pct = false, dollar = false, yLabel = '' } = {}) {
+  const el = document.getElementById(id);
+  if (!el) return null;
+  const t = tok();
+  const ds = [
+    { label: 'Treatment', data: onData, borderColor: t.s1, backgroundColor: t.s1 + '14', borderWidth: 2, pointRadius: 0, pointHoverRadius: 5, tension: 0.3, fill: false },
+  ];
+  if (holdData) {
+    ds.push({ label: 'Holdout', data: holdData, borderColor: t.s2, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.3, fill: false, borderDash: [4, 3] });
+  }
+  return new Chart(el, {
+    type: 'line',
+    data: { labels: WEEKS, datasets: ds },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0d1d3a', titleColor: '#e5ecf8', bodyColor: '#b8c8e0',
+          borderColor: '#263048', borderWidth: 1, padding: 10,
+          callbacks: {
+            label: ctx => {
+              const v = ctx.parsed.y;
+              const prefix = dollar ? '$' : '';
+              const suffix = pct ? '%' : '';
+              return ` ${ctx.dataset.label}: ${prefix}${v.toFixed(dollar ? 0 : 2)}${suffix}`;
+            }
+          }
+        },
+        ann: { lines: getAnn() }
+      },
+      scales: {
+        x: { grid: { color: t.grid, lineWidth: 0.6 }, ticks: { color: t.muted, font: { size: 10 }, maxRotation: 45 } },
+        y: {
+          grid: { color: t.grid, lineWidth: 0.6 },
+          ticks: {
+            color: t.muted, font: { size: 10 },
+            callback: v => dollar ? '$' + (v >= 1e6 ? (v/1e6).toFixed(0) + 'M' : v >= 1e3 ? (v/1e3).toFixed(0) + 'K' : v.toFixed(0)) : pct ? v.toFixed(0) + '%' : v.toFixed(0)
+          }
+        }
+      }
+    }
+  });
+}
+
+// Build charts — all from Databricks
+makeTS('ch-handle-per', D.handlePer_o, D.handlePer_h, { dollar: true });
+makeTS('ch-bets-per', D.bets_o, D.bets_h, {});
+makeTS('ch-sels-per', D.sels_o, D.sels_h, {});
+makeTS('ch-ggr-per', D.ggrPer_o, D.ggrPer_h, { dollar: true });
+makeTS('ch-pp-handle', D.pp_handle_o, D.pp_handle_h, { dollar: true });
+makeTS('ch-pp-bets', D.pp_bets_o, D.pp_bets_h, {});
+makeTS('ch-eggr', D.ggrPer_o, D.ggrPer_h, { dollar: true });
+makeTS('ch-ep-handle', D.ep_handle_o, D.ep_handle_h, { dollar: true });
+makeTS('ch-ep-bets', D.ep_bets_o, D.ep_bets_h, {});
+
+// PP Selection Success session rate (11 weeks, needs its own labels)
+(function(){
+  const el = document.getElementById('ch-pp-ss-rate');
+  if (!el) return;
+  const t = tok();
+  const labels11 = WEEKS.slice(0, 11);
+  new Chart(el, {
+    type: 'line',
+    data: {
+      labels: labels11,
+      datasets: [
+        { label: 'Treatment', data: DB.w_pp_ss_o, borderColor: t.s1, backgroundColor: t.s1 + '14', borderWidth: 2, pointRadius: 0, pointHoverRadius: 5, tension: 0.3, fill: false },
+        { label: 'Holdout', data: DB.w_pp_ss_h, borderColor: t.s2, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.3, fill: false, borderDash: [4, 3] },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#0d1d3a', titleColor: '#e5ecf8', bodyColor: '#b8c8e0', borderColor: '#263048', borderWidth: 1, padding: 10,
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%` } },
+        ann: { lines: getAnn() }
+      },
+      scales: {
+        x: { grid: { color: t.grid, lineWidth: 0.6 }, ticks: { color: t.muted, font: { size: 10 }, maxRotation: 45 } },
+        y: { grid: { color: t.grid, lineWidth: 0.6 }, ticks: { color: t.muted, font: { size: 10 }, callback: v => v.toFixed(0) + '%' } }
+      }
+    }
+  });
+})();
+
+// ---- VALIDATION CHARTS ----
+const VAL = {
+  segments: ['new','promo','no value','lapsed','casual','med 1','med 2','med 3','med 4','high 1','high 2','vh 1','vh 2','vh 3','key acct','unknown'],
+  seg_n_h: [2996,5601,35289,2865,49028,23092,13225,8774,6006,4394,3863,2358,1515,828,1705,3966],
+  seg_n_o: [26621,50611,316832,25288,439894,208852,119460,78271,53737,39187,33475,21559,13563,7752,14640,36700],
+  seg_pct_h: [1.81,3.38,21.33,1.73,29.58,13.99,7.99,5.31,3.63,2.65,2.33,1.43,0.91,0.50,1.03,2.40],
+  seg_pct_o: [1.80,3.41,21.30,1.70,29.60,14.05,8.03,5.26,3.61,2.64,2.25,1.45,0.91,0.52,0.98,2.47],
+  seg_handle_h: [329.16,672.95,159.20,153.48,194.31,480.96,791.61,1188.78,1624.16,2181.16,2893.73,4129.41,5234.16,7686.51,7510.95,65.39],
+  seg_handle_o: [331.31,686.52,161.38,111.76,194.74,479.06,793.32,1208.20,1636.24,2196.18,2890.57,4038.68,5221.11,7477.02,7545.31,79.90],
+  seg_handle_std_h: [1108.52,1577.53,979.04,986.54,519.82,1033.84,1508.80,2001.25,2465.56,3012.18,3574.14,4433.35,4989.08,6039.26,6119.43,485.67],
+  seg_handle_std_o: [1234.79,1621.84,996.78,666.82,518.12,1043.24,1484.58,2044.05,2487.21,3025.86,3497.26,4326.67,4997.48,5799.56,6099.53,585.70],
+  seg_eggr_h: [224.80,20.99,57.83,85.58,91.93,218.34,378.32,623.60,906.71,1277.63,1786.86,2770.06,3943.99,5846.89,5687.87,52.93],
+  seg_eggr_o: [207.84,20.41,56.27,80.17,91.47,219.83,383.58,608.41,896.83,1275.22,1803.31,2724.72,3906.18,5758.12,5563.76,59.99],
+  seg_bets_h: [20.44,44.20,10.91,7.83,32.13,62.45,91.68,121.64,152.29,178.69,209.86,246.29,248.03,302.65,173.16,4.39],
+  seg_bets_o: [19.67,44.57,11.21,7.09,31.85,62.52,91.48,121.20,151.75,179.28,211.06,243.29,259.88,300.06,171.11,4.23],
+  seg_bets_std_h: [45.54,65.83,30.72,29.42,66.72,106.01,140.00,168.54,194.62,210.53,229.21,261.13,263.19,299.68,229.01,14.89],
+  seg_bets_std_o: [39.52,67.88,33.61,24.03,64.82,107.87,139.58,167.00,192.86,214.03,231.46,256.11,269.69,294.85,226.17,14.32],
+  ret_weeks: ['Jul 06','Jul 13','Jul 20','Jul 27','Aug 03','Aug 10','Aug 17','Aug 24','Aug 31','Sep 07','Sep 14'],
+  ret_h: [65.95,76.28,72.37,72.05,69.99,70.09,68.17,70.02,66.20,54.06,53.33],
+  ret_o: [65.56,76.13,72.44,72.10,70.09,70.11,68.40,70.00,66.47,54.09,53.46],
+};
+
+// Segment distribution — horizontal grouped bar
+(function(){
+  const el = document.getElementById('ch-seg-dist');
+  if (!el) return;
+  const t = tok();
+  new Chart(el, {
+    type: 'bar',
+    data: {
+      labels: VAL.segments,
+      datasets: [
+        { label: 'Treatment', data: VAL.seg_pct_o, backgroundColor: t.s1 + 'cc', borderRadius: 3, barPercentage: 0.85, categoryPercentage: 0.7 },
+        { label: 'Holdout', data: VAL.seg_pct_h, backgroundColor: t.s2 + '99', borderRadius: 3, barPercentage: 0.85, categoryPercentage: 0.7 },
+      ]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 10 } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.x}%` } } },
+      scales: {
+        x: { grid: { color: t.grid }, ticks: { color: t.muted, font: { size: 9 }, callback: v => v + '%' } },
+        y: { grid: { display: false }, ticks: { color: t.muted, font: { size: 9 } } }
+      }
+    }
+  });
+})();
+
+// Handle by segment — grouped bar
+(function(){
+  const el = document.getElementById('ch-seg-handle');
+  if (!el) return;
+  const t = tok();
+  // Exclude 'unknown' for cleaner chart
+  const segs = VAL.segments.slice(0, -1);
+  const hd = VAL.seg_handle_h.slice(0, -1);
+  const od = VAL.seg_handle_o.slice(0, -1);
+  new Chart(el, {
+    type: 'bar',
+    data: {
+      labels: segs,
+      datasets: [
+        { label: 'Treatment', data: od, backgroundColor: t.s1 + 'cc', borderRadius: 3, barPercentage: 0.85, categoryPercentage: 0.7 },
+        { label: 'Holdout', data: hd, backgroundColor: t.s2 + '99', borderRadius: 3, barPercentage: 0.85, categoryPercentage: 0.7 },
+      ]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 10 } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.x.toLocaleString()}` } } },
+      scales: {
+        x: { grid: { color: t.grid }, ticks: { color: t.muted, font: { size: 9 }, callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(0) + 'K' : v) } },
+        y: { grid: { display: false }, ticks: { color: t.muted, font: { size: 9 } } }
+      }
+    }
+  });
+})();
+
+// EP retention line chart (11 weeks — no retention for last week)
+(function(){
+  const el = document.getElementById('ch-ep-retention');
+  if (!el) return;
+  const t = tok();
+  new Chart(el, {
+    type: 'line',
+    data: {
+      labels: VAL.ret_weeks,
+      datasets: [
+        { label: 'Treatment', data: VAL.ret_o, borderColor: t.s1, backgroundColor: t.s1 + '14', borderWidth: 2, pointRadius: 0, pointHoverRadius: 5, tension: 0.3, fill: false },
+        { label: 'Holdout', data: VAL.ret_h, borderColor: t.s2, backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, tension: 0.3, fill: false, borderDash: [4, 3] },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#0d1d3a', titleColor: '#e5ecf8', bodyColor: '#b8c8e0', borderColor: '#263048', borderWidth: 1, padding: 10,
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%` } },
+        ann: { lines: getAnn() }
+      },
+      scales: {
+        x: { grid: { color: t.grid, lineWidth: 0.6 }, ticks: { color: t.muted, font: { size: 10 }, maxRotation: 45 } },
+        y: { grid: { color: t.grid, lineWidth: 0.6 }, ticks: { color: t.muted, font: { size: 10 }, callback: v => v.toFixed(0) + '%' } }
+      }
+    }
+  });
+})();
+
+// EP views per viewer chart
+makeTS('ch-ep-views', DB.w_ep_views_o, DB.w_ep_views_h, {});
+
+// Feature adoption chart (treatment only, Amplitude)
+(function(){
+  const el = document.getElementById('ch-adoption');
+  if (!el) return;
+  const t = tok();
+  const weeks = ['Jul 27','Aug 03','Aug 10','Aug 17','Aug 24','Aug 31','Sep 07','Sep 14','Sep 21'];
+  const pitcher = [0,0,0,0,1.51,4.58,4.65,10.51,13.85];
+  const lineup = [0,0,0,0,0.59,2.55,2.41,6.31,7.71];
+  const l5 = [6.13,13.54,11.65,7.83,10.74,11.51,null,null,null];
+  new Chart(el, {
+    type: 'line',
+    data: {
+      labels: weeks,
+      datasets: [
+        { label: 'Pitcher click-through', data: pitcher, borderColor: cv('--feature-4'), backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, pointHoverRadius: 5, tension: 0.3, fill: false },
+        { label: 'Lineup modal open', data: lineup, borderColor: cv('--feature-3'), backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, pointHoverRadius: 5, tension: 0.3, fill: false },
+        { label: 'Team L5 dropdown open', data: l5, borderColor: cv('--feature-1'), backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, pointHoverRadius: 5, tension: 0.3, fill: false, borderDash: [4, 3] },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 10 }, usePointStyle: false } },
+        tooltip: { backgroundColor: '#0d1d3a', titleColor: '#e5ecf8', bodyColor: '#b8c8e0', borderColor: '#263048', borderWidth: 1, padding: 10,
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%` } }
+      },
+      scales: {
+        x: { grid: { color: t.grid, lineWidth: 0.6 }, ticks: { color: t.muted, font: { size: 10 }, maxRotation: 45 } },
+        y: { grid: { color: t.grid, lineWidth: 0.6 }, ticks: { color: t.muted, font: { size: 10 }, callback: v => v + '%' } }
+      }
+    }
+  });
+})();
+
+// EP-viewer stat tiles
+(function(){
+  const container = document.getElementById('ep-stat-tiles');
+  if (!container) return;
+  const tiles = [
+    { label:'Handle/User (EP)', h: VAL.ep_handle_h, t: VAL.ep_handle_o, fmt: '$' },
+    { label:'GGR/User (EP)', h: VAL.ep_ggr_h, t: VAL.ep_ggr_o, fmt: '$' },
+    { label:'Bets/User (EP)', h: VAL.ep_bets_h, t: VAL.ep_bets_o, fmt: '' },
+    { label:'EP Viewer n (holdout)', h: VAL.ep_n_h, t: VAL.ep_n_h, fmt: 'n', nocompare: true },
+    { label:'EP Viewer n (treatment)', h: VAL.ep_n_o, t: VAL.ep_n_o, fmt: 'n', nocompare: true },
+  ];
+  tiles.forEach(tile => {
+    const el = document.createElement('div');
+    el.className = 'stat-tile';
+    if (tile.nocompare) {
+      el.innerHTML = `<div class="stat-label">${tile.label}</div><div class="stat-val flat">${tile.h.toLocaleString()}</div>`;
+    } else {
+      const diff = tile.t - tile.h;
+      const rel = tile.h !== 0 ? (diff / tile.h * 100) : 0;
+      const cls = Math.abs(rel) < 2 ? 'flat' : (diff > 0 ? 'up' : 'dn');
+      const sign = rel > 0 ? '+' : '';
+      el.innerHTML = `<div class="stat-label">${tile.label}</div><div class="stat-val ${cls}">${sign}${rel.toFixed(2)}%</div><div class="stat-sub">holdout ${fmtVal(tile.h, tile.fmt)} → treatment ${fmtVal(tile.t, tile.fmt)}</div>`;
+    }
+    container.appendChild(el);
+  });
+})();
+
+// ---- SEGMENT Z-TESTS TABLE ----
+(function(){
+  const table = document.getElementById('seg-ztable');
+  if (!table) return;
+  const segs = VAL.segments.slice(0, -1); // exclude unknown
+  let html = '<thead><tr><th>Segment</th><th>n (H / T)</th><th>Holdout</th><th>Treatment</th><th>Delta (rel)</th><th>p</th></tr></thead><tbody>';
+  for (let i = 0; i < segs.length; i++) {
+    const n_h = VAL.seg_n_h[i], n_t = VAL.seg_n_o[i];
+    const h = VAL.seg_handle_h[i], t_val = VAL.seg_handle_o[i];
+    const h_std = VAL.seg_handle_std_h[i], t_std = VAL.seg_handle_std_o[i];
+    const r = zTest(h, h_std, n_h, t_val, t_std, n_t, 1);
+    const deltaCls = r.sig ? (r.pct > 0 ? 'delta-pos' : 'delta-neg') : 'delta-flat';
+    html += `<tr><td class="metric-name">${segs[i]}</td><td style="font-size:11px;color:var(--muted)">${n_h.toLocaleString()} / ${n_t.toLocaleString()}</td><td>$${h.toFixed(0)}</td><td>$${t_val.toFixed(0)}</td><td class="${deltaCls}">${r.pct > 0 ? '+' : ''}${r.pct.toFixed(2)}%</td><td class="pval ${r.sig ? '' : 'ns'}">${fmtP(r.p)}</td></tr>`;
+  }
+  html += '</tbody>';
+  table.innerHTML = html;
+})();
+
+// Bets by segment chart
+(function(){
+  const el = document.getElementById('ch-seg-bets');
+  if (!el) return;
+  const t = tok();
+  const segs = VAL.segments.slice(0, -1);
+  new Chart(el, {
+    type: 'bar',
+    data: {
+      labels: segs,
+      datasets: [
+        { label: 'Treatment', data: VAL.seg_bets_o.slice(0, -1), backgroundColor: t.s1 + 'cc', borderRadius: 3, barPercentage: 0.85, categoryPercentage: 0.7 },
+        { label: 'Holdout', data: VAL.seg_bets_h.slice(0, -1), backgroundColor: t.s2 + '99', borderRadius: 3, barPercentage: 0.85, categoryPercentage: 0.7 },
+      ]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 10 } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.x.toFixed(1)}` } } },
+      scales: {
+        x: { grid: { color: t.grid }, ticks: { color: t.muted, font: { size: 9 } } },
+        y: { grid: { display: false }, ticks: { color: t.muted, font: { size: 9 } } }
+      }
+    }
+  });
+})();
+
+// GGR by segment chart
+(function(){
+  const el = document.getElementById('ch-seg-ggr');
+  if (!el) return;
+  const t = tok();
+  const segs = VAL.segments.slice(0, -1);
+  new Chart(el, {
+    type: 'bar',
+    data: {
+      labels: segs,
+      datasets: [
+        { label: 'Treatment', data: VAL.seg_eggr_o.slice(0, -1), backgroundColor: t.s1 + 'cc', borderRadius: 3, barPercentage: 0.85, categoryPercentage: 0.7 },
+        { label: 'Holdout', data: VAL.seg_eggr_h.slice(0, -1), backgroundColor: t.s2 + '99', borderRadius: 3, barPercentage: 0.85, categoryPercentage: 0.7 },
+      ]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 10 } } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: $${ctx.parsed.x.toFixed(0)}` } } },
+      scales: {
+        x: { grid: { color: t.grid }, ticks: { color: t.muted, font: { size: 9 }, callback: v => '$' + (v >= 1000 ? (v/1000).toFixed(0) + 'K' : v) } },
+        y: { grid: { display: false }, ticks: { color: t.muted, font: { size: 9 } } }
+      }
+    }
+  });
+})();
+
+// ---- TIMELINE MARKERS ----
+(function() {
+  const cont = document.getElementById('tl-markers');
+  const ev = [
+    { date: 'Jun 20', label: 'Team L5 Games*', color: 'var(--feature-1)', above: true, pct: 0 },
+    { date: 'Jul 7', label: 'Team Records', color: 'var(--feature-2)', above: false, pct: 18 },
+    { date: 'Jul 23', label: 'Broadcast Info', color: 'var(--feature-2)', above: true, pct: 34 },
+    { date: 'Aug 14', label: 'Starting Pitchers', color: 'var(--feature-4)', above: false, pct: 56 },
+    { date: 'Aug 27', label: 'Starting Lineups', color: 'var(--feature-3)', above: true, pct: 70 },
+    { date: 'Sep 25', label: 'Analysis ends', color: 'var(--faint)', above: false, pct: 100 },
+  ];
+  ev.forEach(e => {
+    const el = document.createElement('div');
+    el.className = 'tl-m ' + (e.above ? 'above' : 'below');
+    el.style.left = e.pct + '%';
+    el.innerHTML = `<div class="dot" style="background:${e.color}"></div><div class="lbl" style="color:${e.color}">${e.label}</div><div class="dt">${e.date}</div>`;
+    cont.appendChild(el);
+  });
+})();
+</script>
